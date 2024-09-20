@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Company;
 use App\Http\Requests\StoreCompanyRequest;
 use App\Http\Requests\UpdateCompanyRequest;
+use Illuminate\Http\Request;
 
 class CompanyController extends Controller
 {
@@ -13,54 +14,37 @@ class CompanyController extends Controller
      */
     public function index()
     {
-        //
+        return response()->json(['success' => true, 'message' => 'Companies retrieved successfully', 'data' => Company::all()]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function store(Request $request)
     {
-        //
+        $request->validate([
+            'name' => 'required|string|max:255',
+            // Add other validation rules as necessary
+        ]);
+
+        $company = Company::create($request->all());
+        return response()->json(['success' => true, 'message' => 'Company created successfully', 'data' => $company], 201);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(StoreCompanyRequest $request)
+    public function show($id)
     {
-        //
+        $company = Company::findOrFail($id);
+        return response()->json(['success' => true, 'message' => 'Company retrieved successfully', 'data' => $company]);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Company $company)
+    public function update(Request $request, $id)
     {
-        //
+        $company = Company::findOrFail($id);
+        $company->update($request->all());
+        return response()->json(['success' => true, 'message' => 'Company updated successfully', 'data' => $company]);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Company $company)
+    public function destroy($id)
     {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdateCompanyRequest $request, Company $company)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Company $company)
-    {
-        //
+        $company = Company::findOrFail($id);
+        $company->delete();
+        return response()->json(['success' => true, 'message' => 'Company deleted successfully']);
     }
 }

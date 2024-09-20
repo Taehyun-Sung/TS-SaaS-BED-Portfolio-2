@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Position;
 use App\Http\Requests\StorePositionRequest;
 use App\Http\Requests\UpdatePositionRequest;
+use Illuminate\Http\Request;
 
 class PositionController extends Controller
 {
@@ -13,54 +14,37 @@ class PositionController extends Controller
      */
     public function index()
     {
-        //
+        return response()->json(['success' => true, 'message' => 'Positions retrieved successfully', 'data' => Position::all()]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function store(Request $request)
     {
-        //
+        $request->validate([
+            'title' => 'required|string|max:255',
+            // Add other validation rules as necessary
+        ]);
+
+        $position = Position::create($request->all());
+        return response()->json(['success' => true, 'message' => 'Position created successfully', 'data' => $position], 201);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(StorePositionRequest $request)
+    public function show($id)
     {
-        //
+        $position = Position::findOrFail($id);
+        return response()->json(['success' => true, 'message' => 'Position retrieved successfully', 'data' => $position]);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Position $position)
+    public function update(Request $request, $id)
     {
-        //
+        $position = Position::findOrFail($id);
+        $position->update($request->all());
+        return response()->json(['success' => true, 'message' => 'Position updated successfully', 'data' => $position]);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Position $position)
+    public function destroy($id)
     {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdatePositionRequest $request, Position $position)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Position $position)
-    {
-        //
+        $position = Position::findOrFail($id);
+        $position->delete();
+        return response()->json(['success' => true, 'message' => 'Position deleted successfully']);
     }
 }
