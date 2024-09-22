@@ -25,10 +25,11 @@ class RegisteredUserController extends Controller
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-            'password' => ['required', Rules\Password::defaults()],
+            'password' => ['required', 'min:8'],
             'user_type' => ['required', 'in:applicant,client,staff,administrator,super-user'], //
         ]);
 
+        \Log::info('Registering user:', $request->all());
 
         // Create the new user
         $user = User::create([
@@ -40,11 +41,13 @@ class RegisteredUserController extends Controller
             'family_name' => $request->family_name,
             'status' => $request->status
         ]);
-        \Log::info($request->all());
+        \Log::info('Registering user:', $request->all());
 
 
         // Assign role based on user type
         $user->assignRole($request->user_type); // Directly assign role matching the user type
+        \Log::info('Registered user password:', ['password' => $user->password]);
+
 
         return response()->json([
             'success' => true,

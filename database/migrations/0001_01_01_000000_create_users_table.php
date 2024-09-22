@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('given_name');
             $table->string('family_name');
             $table->string('email')->unique();
+            $table->string('password');
             $table->foreignId('company_id')->nullable()->constrained()->onDelete('cascade');
             $table->enum('user_type', ['client', 'staff', 'applicant']);
             $table->enum('status', ['active', 'unconfirmed', 'suspended', 'banned', 'unknown'])->nullable();
