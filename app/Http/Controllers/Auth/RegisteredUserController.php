@@ -18,15 +18,17 @@ class RegisteredUserController extends Controller
      *
      * @throws \Illuminate\Validation\ValidationException
      */
-    public function store(Request $request)
+    public function register(Request $request)
     {
+
         // Validate the incoming request
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
-            'user_type' => ['required', 'in:applicant,client,staff,administrator,super-user'], // Validate user type
+            'password' => ['required', Rules\Password::defaults()],
+            'user_type' => ['required', 'in:applicant,client,staff,administrator,super-user'], //
         ]);
+
 
         // Create the new user
         $user = User::create([
@@ -34,7 +36,12 @@ class RegisteredUserController extends Controller
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'user_type' => $request->user_type, // Store user type
+            'given_name' => $request->given_name,
+            'family_name' => $request->family_name,
+            'status' => $request->status
         ]);
+        \Log::info($request->all());
+
 
         // Assign role based on user type
         $user->assignRole($request->user_type); // Directly assign role matching the user type

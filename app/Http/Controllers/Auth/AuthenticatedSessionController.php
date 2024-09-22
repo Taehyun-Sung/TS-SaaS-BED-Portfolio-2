@@ -13,13 +13,17 @@ class AuthenticatedSessionController extends Controller
     /**
      * Handle an incoming authentication request.
      */
-    public function store(Request $request)
+    public function login(Request $request)
     {
+
         // Validate the login credentials
         $request->validate([
             'email' => ['required', 'email'],
             'password' => ['required'],
+
         ]);
+
+        \Log::info('Login attempt:', $request->only('email', 'password'));
 
         // Attempt to authenticate the user
         if (!Auth::attempt($request->only('email', 'password'))) {
@@ -30,7 +34,7 @@ class AuthenticatedSessionController extends Controller
             ], 401);
         }
 
-        // Retrieve the authenticated user
+        // Retrieve the authenticated users
         $user = Auth::user();
 
         // Generate a token for the user

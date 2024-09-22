@@ -1,13 +1,15 @@
 <?php
 
+use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\PositionController;
 use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-Route::post('/register', [\App\Http\Controllers\Auth\RegisteredUserController::class, 'register']);
-Route::post('/login', [\App\Http\Controllers\Auth\AuthenticatedSessionController::class, 'login']);
+Route::post('/register', [RegisteredUserController::class, 'register']);
+Route::post('/login', [AuthenticatedSessionController::Class, 'login']);
 
 // Companies (only accessible for authenticated users with appropriate roles)
 Route::middleware(['auth:sanctum', 'role:client|staff|administrator|super-user'])->group(function () {
