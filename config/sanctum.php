@@ -35,7 +35,6 @@ return [
     */
 
     'guard' => [
-        'web',
         'api',
     ],
 

@@ -6,6 +6,9 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+/**
+ * @group Position Management
+ */
 class Position extends Model
 {
     use HasFactory, SoftDeletes;
@@ -26,12 +29,28 @@ class Position extends Model
         'user_id', // foreign key to users
     ];
 
-    // A position belongs to a company
+    /**
+     * Get the company that owns the position.
+     *
+     * ## Relationship: Company
+     * - **Type**: BelongsTo
+     * - **Description**: A position belongs to one company.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function company() {
         return $this->belongsTo(Company::class);
     }
 
-    // A position belongs to a user
+    /**
+     * Get the user that owns the position.
+     *
+     * ## Relationship: User
+     * - **Type**: BelongsTo
+     * - **Description**: A position belongs to one user.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function user() {
         return $this->belongsTo(User::class);
     }

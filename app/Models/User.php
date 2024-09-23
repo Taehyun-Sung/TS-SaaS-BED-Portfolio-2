@@ -11,6 +11,9 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 
+/**
+ * @group User Management
+ */
 class User extends Authenticatable
 {
     use HasFactory, SoftDeletes, HasApiTokens, HasRoles;
@@ -27,12 +30,29 @@ class User extends Authenticatable
 
     ];
 
-    // Relationships
+    /**
+     * Get the company that owns the user.
+     *
+     * ## Relationship: Company
+     * - **Type**: BelongsTo
+     * - **Description**: A user belongs to one company.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function company()
     {
         return $this->belongsTo(Company::class);
     }
 
+    /**
+     * Get the positions associated with the user.
+     *
+     * ## Relationship: Positions
+     * - **Type**: HasMany
+     * - **Description**: A user can have multiple positions.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function positions()
     {
         return $this->hasMany(Position::class);

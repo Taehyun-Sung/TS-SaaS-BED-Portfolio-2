@@ -6,19 +6,38 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+/**
+ * @group Company Management
+ */
 class Company extends Model
 {
     use HasFactory, SoftDeletes;
 
     protected $fillable = ['name', 'city', 'state', 'country', 'logo'];
 
-    // Relationship with Position
+    /**
+     * Get the positions associated with the company.
+     *
+     * ## Relationship: Positions
+     * - **Type**: HasMany
+     * - **Description**: A company can have multiple positions.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function positions()
     {
         return $this->hasMany(Position::class);
     }
 
-    // Relationship with User
+    /**
+     * Get the users associated with the company.
+     *
+     * ## Relationship: Users
+     * - **Type**: HasMany
+     * - **Description**: A company can have multiple users.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function users()
     {
         return $this->hasMany(User::class);

@@ -14,9 +14,50 @@ use Illuminate\Validation\Rules;
 class RegisteredUserController extends Controller
 {
     /**
-     * Handle an incoming registration request.
+     * Register a new user.
      *
-     * @throws \Illuminate\Validation\ValidationException
+     * ## User Registration
+     * - **Endpoint**: `POST /register`
+     * - **Description**: Registers a new user.
+     *
+     * **Request Body (JSON)**:
+     * ```json
+     * {
+     *   "name": "Taehyun",
+     *   "email": "Taehyun@example.com",
+     *   "password": "password",
+     *   "user_type": "client"
+     * }
+     * ```
+     *
+     * **Successful Response (201)**:
+     * ```json
+     * {
+     *   "success": true,
+     *   "message": "User registered successfully",
+     *   "data": {
+     *     "user": {
+     *       "id": 1,
+     *       "nickname": null,
+     *       "email": "Taehyun@example.com",
+     *       "user_type": "client"
+     *     }
+     *   }
+     * }
+     * ```
+     *
+     * **Error Responses**:
+     * - **Validation Errors (422)**:
+     * ```json
+     * {
+     *   "success": false,
+     *   "message": "The given data was invalid.",
+     *   "data": {
+     *     "email": ["The email has already been taken."],
+     *     "password": ["The password must be at least 8 characters."]
+     *   }
+     * }
+     * ```
      */
     public function register(Request $request)
     {

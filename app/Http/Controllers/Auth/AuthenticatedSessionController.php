@@ -11,7 +11,45 @@ use Illuminate\Support\Facades\Auth;
 class AuthenticatedSessionController extends Controller
 {
     /**
-     * Handle an incoming authentication request.
+     * Login a user and return an access token.
+     *
+     * ## User Login
+     * - **Endpoint**: `POST /login`
+     * - **Description**: Authenticates a user and returns an access token.
+     *
+     * **Request Body (JSON)**:
+     * ```json
+     * {
+     *   "email": "user@example.com",
+     *   "password": "password"
+     * }
+     * ```
+     *
+     * **Successful Response (200)**:
+     * ```json
+     * {
+     *   "success": true,
+     *   "message": "Login successful",
+     *   "data": {
+     *     "user": {
+     *       "id": 1,
+     *       "name": "Taehyun",
+     *       "email": "Taehyun@example.com",
+     *       "user_type": "client",
+     *       "token": "generated-auth-token"
+     *     }
+     *   }
+     * }
+     * ```
+     *
+     * **Error Response (401)**:
+     * ```json
+     * {
+     *   "success": false,
+     *   "message": "Invalid credentials",
+     *   "data": []
+     * }
+     * ```
      */
     public function login(Request $request)
     {
@@ -55,7 +93,23 @@ class AuthenticatedSessionController extends Controller
         ], 200);
     }
 
-    public function destroy(Request $request)
+    /**
+     * Logout the authenticated user.
+     *
+     * ## User Logout
+     * - **Endpoint**: `POST /logout`
+     * - **Description**: Logs out the authenticated user by revoking their access token.
+     *
+     * **Successful Response (200)**:
+     * ```json
+     * {
+     *   "success": true,
+     *   "message": "Logout successful",
+     *   "data": []
+     * }
+     * ```
+     */
+    public function logout(Request $request)
     {
         // Revoke the user's token
         $request->user()->currentAccessToken()->delete();
