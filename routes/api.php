@@ -1,76 +1,60 @@
 <?php
 
-use App\Http\Controllers\Auth\AuthenticatedSessionController;
-use App\Http\Controllers\Auth\RegisteredUserController;
+use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\PositionController;
 use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-// Authentication Routes
-Route::post('/register', [RegisteredUserController::class, 'register']); // User registration
-Route::post('/login', [AuthenticatedSessionController::class, 'login']); // User login
-Route::post('/logout', [AuthenticatedSessionController::class, 'logout']); // User logout
 
-// Company Routes
-Route::middleware(['auth:sanctum'])->group(function () {
-    // Client: Can only access their own companies
-    Route::middleware('role:client')->group(function () {
-        Route::get('/companies', [CompanyController::class, 'index']); // Search own companies
-        Route::get('/companies/{id}', [CompanyController::class, 'show']); // Read own company
-        Route::post('/companies', [CompanyController::class, 'store']); // Add own company
-        Route::put('/companies/{id}', [CompanyController::class, 'update']); // Edit own company
-        Route::delete('/companies/{id}', [CompanyController::class, 'destroy']); // Delete own company
-    });
+//Route::get('/user', function (Request $request) {
+//    return $request->user();
+//})->middleware('auth:sanctum');
 
-    // Staff, Administrator, and Super User: Full access to all companies
-    Route::middleware('role:staff|administrator|super-user')->group(function () {
-        Route::get('/companies', [CompanyController::class, 'index']); // Search all companies
-        Route::get('/companies/{id}', [CompanyController::class, 'show']); // Read any company
-        Route::post('/companies', [CompanyController::class, 'store']); // Add any company
-        Route::put('/companies/{id}', [CompanyController::class, 'update']); // Edit any company
-        Route::delete('/companies/{id}', [CompanyController::class, 'destroy']); // Delete any company
-    });
+Route::group(['prefix'=>'v1'], function () {
+    Route::post('/register', [AuthController::class, 'register']);
+    Route::post('/login', [AuthController::class, 'login']);
+    Route::post('/logout', [AuthController::class, 'logout'])
+        ->middleware('auth:sanctum');
 });
 
-// Position Routes
-Route::get('/positions', [PositionController::class, 'index']); // Public access to all positions
-Route::middleware(['auth:sanctum'])->group(function () {
-    // All authenticated users can read one position
-    Route::get('/positions/{id}', [PositionController::class, 'show']); // Read one position
-
-    // Client: Can only access their own positions
-    Route::middleware('role:client')->group(function () {
-        Route::post('/positions', [PositionController::class, 'store']); // Add own position
-        Route::put('/positions/{id}', [PositionController::class, 'update']); // Edit own position
-        Route::delete('/positions/{id}', [PositionController::class, 'destroy']); // Delete own position
-    });
-
-    // Staff, Administrator, and Super User: Full access to all positions
-    Route::middleware('role:staff|administrator|super-user')->group(function () {
-        Route::get('/positions', [PositionController::class, 'index']); // Get all positions
-        Route::post('/positions', [PositionController::class, 'store']); // Add any position
-        Route::put('/positions/{id}', [PositionController::class, 'update']); // Edit any position
-        Route::delete('/positions/{id}', [PositionController::class, 'destroy']); // Delete any position
-    });
+Route::middleware('auth:sanctum')->prefix('v1')->group(function () {
+    Route::apiResource('companies', CompanyController::class);
+    Route::patch('companies/{id}/restore', [CompanyController::class, 'restore'])
+        ->name('companies.restore');
+    Route::patch('companies/restore-all', [CompanyController::class, 'restoreAll'])
+        ->name('companies.restore-all');
+    Route::delete('companies/force-all',[CompanyController::class, 'deleteAll'])
+        ->name('companies.delete-all');
 });
 
-// User Routes
-Route::middleware(['auth:sanctum'])->group(function () {
-    // Staff, Administrator, and Super User: Full access to manage users
-    Route::middleware('role:staff|administrator|super-user')->group(function () {
-        Route::get('/users', [UserController::class, 'index']); // Browse all users
-        Route::get('/users/{id}', [UserController::class, 'show']); // Read any user
-        Route::post('/users', [UserController::class, 'store']); // Add user
-        Route::put('/users/{id}', [UserController::class, 'update']); // Edit any user
-        Route::delete('/users/{id}', [UserController::class, 'destroy']); // Delete any user
-    });
-
-    // Applicant and Client: Limited access to their own user data
-    Route::middleware('role:applicant|client')->group(function () {
-        Route::get('/users/{id}', [UserController::class, 'show']); // Read own user
-        Route::put('/users/{id}', [UserController::class, 'update']); // Edit own user
-        Route::delete('/users/{id}', [UserController::class, 'destroy']); // Delete own user
-    });
+Route::prefix('v1')->group(function () {
+    Route::get('positions', [PositionController::class, 'index']);
 });
+
+Route::middleware('auth:sanctum')->prefix('v1')->group(function () {
+    Route::apiResource('positions', PositionController::class)->except(['index']);
+    Route::patch('positions/{id}/restore', [PositionController::class, 'restore'])
+        ->name('positions.restore');
+    Route::patch('positions/restore-all', [PositionController::class, 'restoreAll'])
+        ->name('positions.restore-all');
+    Route::delete('positions/force-all',[PositionController::class, 'deleteAll'])
+        ->name('positions.delete-all');
+});
+
+Route::middleware('auth:sanctum')->prefix('v1')->group(function () {
+//    Route::get('users', [UserController::class, 'index']);
+//    Route::get('users/{user}', [UserController::class, 'show']);
+//    Route::patch('users/{user}', [UserController::class, 'update']);
+//    Route::delete('users/{user}', [UserController::class, 'destroy']);
+    Route::apiResource('users', UserController::class);
+    Route::patch('users/{id}/restore', [UserController::class, 'restore'])
+        ->name('users.restore');
+    Route::delete('users/{id}/force-delete', [UserController::class, 'forceDelete'])
+        ->name('users.force-delete');
+    Route::delete('/users/force-all', [UserController::class, 'destroyAll'])
+        ->name('users.delete-all');
+});
+
+

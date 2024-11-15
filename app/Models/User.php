@@ -6,55 +6,74 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
-use Spatie\Permission\Traits\HasRoles;
 
-/**
- * @group User Management
- */
 class User extends Authenticatable
 {
-    use HasFactory, SoftDeletes, HasApiTokens, HasRoles;
+    use HasApiTokens, HasFactory, Notifiable, SoftDeletes;
 
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array<int, string>
+     */
     protected $fillable = [
         'nickname',
         'given_name',
         'family_name',
         'email',
+        'password',
         'company_id',
         'user_type',
-        'status',
-        'password'
-
+        'status'
     ];
 
     /**
-     * Get the company that owns the user.
+     * The attributes that should be hidden for serialization.
      *
-     * ## Relationship: Company
-     * - **Type**: BelongsTo
-     * - **Description**: A user belongs to one company.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @var array<int, string>
      */
-    public function company()
-    {
-        return $this->belongsTo(Company::class);
-    }
+    protected $hidden = [
+        'password',
+        'remember_token',
+    ];
 
     /**
-     * Get the positions associated with the user.
+     * Get the attributes that should be cast.
      *
-     * ## Relationship: Positions
-     * - **Type**: HasMany
-     * - **Description**: A user can have multiple positions.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return array<string, string>
      */
-    public function positions()
+    protected function casts(): array
     {
+        return [
+            'email_verified_at' => 'datetime',
+            'password' => 'hashed',
+        ];
+    }
+
+    public function positions() {
         return $this->hasMany(Position::class);
     }
+
+    public function isAdmin()
+    {
+        return $this->user_type === 'administrator';
+    }
+
+    public function isStaff()
+    {
+        return $this->user_type === 'staff';
+    }
+
+    public function isSuperUser()
+    {
+        return $this->user_type === 'super_user';
+    }
+
+    public function isClient()
+    {
+        return $this->user_type === 'client';
+    }
+
 }

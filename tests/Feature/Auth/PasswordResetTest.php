@@ -19,9 +19,12 @@ test('password can be reset with valid token', function () {
 
     $user = User::factory()->create();
 
+    // Step 1: Trigger password reset email
     $this->post('/forgot-password', ['email' => $user->email]);
 
+    // Step 2: Get the reset token from the notification
     Notification::assertSentTo($user, ResetPassword::class, function (object $notification) use ($user) {
+        // Step 3: Attempt to reset the password
         $response = $this->post('/reset-password', [
             'token' => $notification->token,
             'email' => $user->email,
@@ -29,10 +32,12 @@ test('password can be reset with valid token', function () {
             'password_confirmation' => 'password',
         ]);
 
+        // Step 4: Assert that the user is redirected to the correct route after password reset
         $response
             ->assertSessionHasNoErrors()
-            ->assertStatus(200);
+            ->assertRedirect('/login'); // Adjust this to the actual route where the user should be redirected
 
         return true;
     });
 });
+

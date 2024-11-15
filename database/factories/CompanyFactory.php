@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\Company;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -9,28 +10,21 @@ use Illuminate\Database\Eloquent\Factories\Factory;
  */
 class CompanyFactory extends Factory
 {
+    protected $model = Company::class;
     /**
      * Define the model's default state.
      *
      * @return array<string, mixed>
-     *
-     * ## Default Attributes
-     * - **name**: Random company name.
-     * - **city**: Random city name.
-     * - **state**: Random state name.
-     * - **country**: Random country name.
-     * - **logo**: URL to a random image (optional).
-     * - **created_at**: Current timestamp.
-     * - **updated_at**: Current timestamp.
      */
-    public function definition()
+    public function definition(): array
     {
         return [
             'name' => $this->faker->company,
-            'city' => $this->faker->city,
-            'state' => $this->faker->state,
-            'country' => $this->faker->country,
-            'logo' => $this->faker->imageUrl(), // Optional field
+            'city_id' => $this->faker->numberBetween(1, 100),
+            'state_id' => $this->faker->numberBetween(1, 50),
+            'country_id' => $this->faker->numberBetween(1, 20),
+            'logo' => null,
+            'user_id' => $this->faker->numberBetween(1,100),
             'created_at' => now(),
             'updated_at' => now(),
         ];

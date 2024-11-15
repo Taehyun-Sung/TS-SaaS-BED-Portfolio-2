@@ -5,102 +5,108 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Auth\Events\Registered;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
+use Illuminate\View\View;
 
+/**
+ * @group Authentication
+ *
+ * This controller handles the user registration process, including displaying the registration form and processing the registration request.
+ * It creates a new user, fires the registration event, and logs the user in.
+ *
+ * @package App\Http\Controllers\Auth
+ */
 class RegisteredUserController extends Controller
 {
     /**
-     * Register a new user.
+     * Display the registration view.
      *
-     * ## User Registration
-     * - **Endpoint**: `POST /register`
-     * - **Description**: Registers a new user.
+     * This method renders the registration form view where users can input their details
+     * to create a new account.
      *
-     * **Request Body (JSON)**:
-     * ```json
-     * {
-     *   "name": "Taehyun",
-     *   "email": "Taehyun@example.com",
-     *   "password": "password",
-     *   "user_type": "client"
+     * @return View
+     *
+     * @response 200 {
+     *   "success": true,
+     *   "message": "Registration view displayed successfully.",
+     *   "data": {}
      * }
-     * ```
      *
-     * **Successful Response (201)**:
-     * ```json
+     * @example Response:
      * {
      *   "success": true,
-     *   "message": "User registered successfully",
+     *   "message": "Registration form loaded successfully.",
+     *   "data": {}
+     * }
+     */
+    public function create(): View
+    {
+        return view('auth.register');
+    }
+
+    /**
+     * Handle an incoming registration request.
+     *
+     * This method processes the registration form submission. It validates the incoming data,
+     * creates a new user in the database, fires a `Registered` event, and logs the user in automatically.
+     *
+     * @param Request $request The incoming HTTP request containing the registration data.
+     *
+     * @return RedirectResponse Redirects to the dashboard if registration is successful.
+     *
+     * @throws \Illuminate\Validation\ValidationException If the validation fails, it will throw an exception and return the validation errors.
+     *
+     * @response 201 {
+     *   "success": true,
+     *   "message": "User registered successfully.",
      *   "data": {
      *     "user": {
      *       "id": 1,
-     *       "nickname": null,
-     *       "email": "Taehyun@example.com",
-     *       "user_type": "client"
+     *       "name": "Test User",
+     *       "email": "test@example.com",
+     *       "created_at": "2024-11-15T12:00:00Z",
+     *       "updated_at": "2024-11-15T12:00:00Z"
      *     }
      *   }
      * }
-     * ```
      *
-     * **Error Responses**:
-     * - **Validation Errors (422)**:
-     * ```json
+     * @example Response:
      * {
-     *   "success": false,
-     *   "message": "The given data was invalid.",
+     *   "success": true,
+     *   "message": "User registered successfully.",
      *   "data": {
-     *     "email": ["The email has already been taken."],
-     *     "password": ["The password must be at least 8 characters."]
+     *     "user": {
+     *       "id": 1,
+     *       "name": "Test User",
+     *       "email": "test@example.com",
+     *       "created_at": "2024-11-15T12:00:00Z",
+     *       "updated_at": "2024-11-15T12:00:00Z"
+     *     }
      *   }
      * }
-     * ```
      */
-    public function register(Request $request)
+    public function store(Request $request): RedirectResponse
     {
-
-        // Validate the incoming request
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-            'password' => ['required', 'min:8'],
-            'user_type' => ['required', 'in:applicant,client,staff,administrator,super-user'], //
+            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
+            'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
-        \Log::info('Registering user:', $request->all());
-
-        // Create the new user
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'user_type' => $request->user_type, // Store user type
-            'given_name' => $request->given_name,
-            'family_name' => $request->family_name,
-            'status' => $request->status
         ]);
-        \Log::info('Registering user:', $request->all());
 
+        event(new Registered($user));
 
-        // Assign role based on user type
-        $user->assignRole($request->user_type); // Directly assign role matching the user type
-        \Log::info('Registered user password:', ['password' => $user->password]);
+        Auth::login($user);
 
-
-        return response()->json([
-            'success' => true,
-            'message' => 'User registered successfully',
-            'data' => [
-                'user' => [
-                    'id' => $user->id,
-                    'nickname' => $user->nickname,
-                    'email' => $user->email,
-                    'user_type' => $user->user_type,
-                ],
-            ],
-        ], 201);
+        return redirect(route('dashboard', absolute: false));
     }
 }

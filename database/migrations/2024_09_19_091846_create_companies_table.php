@@ -9,23 +9,28 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up()
+    public function up(): void
     {
         Schema::create('companies', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string('city');
-            $table->string('state');
-            $table->string('country');
+            $table->foreignId('city_id');
+            $table->foreignId('state_id');
+            $table->foreignId('country_id');
             $table->string('logo')->nullable();
-            $table->timestamps();
+            $table->foreignId('user_id');
             $table->softDeletes();
+            $table->timestamps();
 
-            $table->unique(['name', 'city', 'state', 'country']);
+            $table->unique(['name', 'city_id', 'state_id', 'country_id']);
+
         });
     }
 
-    public function down()
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
     {
         Schema::dropIfExists('companies');
     }

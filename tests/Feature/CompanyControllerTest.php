@@ -1,82 +1,202 @@
 <?php
 
 use App\Models\Company;
+use App\Models\Position;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Spatie\Permission\Models\Role;
+use function Spatie\PestPluginTestTime\testTime;
 
-beforeEach(function () {
-    // Use the RefreshDatabase trait to reset the database state for each test
-    $this->useRefreshDatabase();
+
+uses( RefreshDatabase::class);
+
+it('has company route', function () {
+    $user = User::factory()->create([
+        'user_type' => 'staff',
+    ]);
+
+    $this->actingAs($user, 'sanctum')
+        ->get('api/v1/companies')
+        ->assertStatus(200);
 });
 
-it('can get companies', function () {
-    // Create a user with appropriate role/permissions
+it('has single company route', function (){
     $user = User::factory()->create();
-    $user->assignRole('staff'); // Assign the role needed for accessing companies
+    $company = Company::factory()->create();
 
-    // Act as the authenticated user
-    $this->actingAs($user);
+    $this->actingAs($user, 'sanctum')
+        ->getJson("/api/v1/companies/{$company->id}")
+        ->assertStatus(200);
+});
 
-    // Optionally create a company
-    Company::factory()->create();
 
-    // Make the API request
-    $response = $this->get('/api/companies');
+it('can browse companies', function () {
+    Company::factory()->count(5)->create();
 
-    // Assert the response
-    $response->assertStatus(200);
-    $response->assertJsonStructure([
-        '*' => ['id', 'name', 'created_at', 'updated_at'], // Adjust the structure as needed
-    ]);
+    $user = User::factory()->create();
+    $this->actingAs($user, 'sanctum');
+
+    $response = $this->getJson('/api/v1/companies');
+
+    $response->assertStatus(200)
+        ->assertJsonStructure([
+            'success',
+            'message',
+            'data' => [
+                '*' => ['id', 'name', 'city_id', 'state_id', 'country_id', 'logo', 'created_at', 'updated_at', 'deleted_at']
+            ]
+        ]);
+});
+
+it('can retrieve single company', function (){
+    $companies = Company::factory()->count(5)->create();
+    $company = $companies->first();
+    $id = $company->id;
+
+    $user = User::factory()->create();
+    $this->actingAs($user, 'sanctum');
+
+    $response = $this->getJson("/api/v1/companies/{$id}");
+
+    $response->assertStatus(200)
+        ->assertJson([
+            'success' => true,
+            'message' => 'Company retrieved successfully',
+            'data' => [
+                'id' => $company->id,
+                'name' => $company->name,
+                'city_id' => $company->city_id,
+                'state_id' => $company->state_id,
+                'country_id' => $company->country_id,
+                'logo' => $company->logo,
+                'deleted_at' => null,
+                'created_at' => $company->created_at->toJSON(),
+                'updated_at' => $company->updated_at->toJSON(),
+            ],
+        ]);
 });
 
 it('can create a company', function () {
     $user = User::factory()->create();
-    $user->assignRole('administrator'); // Role with permission to add companies
+    $this->actingAs($user, 'sanctum');
 
-    $this->actingAs($user);
+    $response = $this->postJson('/api/v1/companies', [
+        'name' => 'Test Company',
+        'city_id' => 1,
+        'state_id' => 2,
+        'country_id' => 3,
+        'logo' => null,  // If logo is nullable, make sure it's set as null
+    ]);
 
-    $companyData = [
-        'name' => 'New Company',
-        // Add other required fields here
-    ];
+    $response->assertStatus(201);
+    $response->assertJsonStructure([
+        'success',
+        'message',
+        'data' => [
+            'id',
+            'name',
+            'city_id',
+            'state_id',
+            'country_id',
+            'logo',
+            'created_at',
+            'updated_at'
+        ]
+    ]);
 
-    $response = $this->post('/api/companies', $companyData);
-
-    $response->assertStatus(201); // Assert created status
-    $this->assertDatabaseHas('companies', $companyData); // Check the company was added to the database
+    expect($response->json('data'))
+        ->name->toBe('Test Company')
+        ->city_id->toBe(1)
+        ->state_id->toBe(2)
+        ->country_id->toBe(3)
+        ->logo->toBeNull();
 });
 
-it('can update a company', function () {
-    $user = User::factory()->create();
-    $user->assignRole('administrator');
 
-    $this->actingAs($user);
+it('can update a company', function (){
+    $company = Company::factory()->create([
+        'name' => 'Test Company',
+        'city_id' => 1,
+        'state_id' => 2,
+        'country_id' => 3,
+        'logo' => null,
+    ]);
 
-    $company = Company::factory()->create();
+    $user = User::factory()->create([
+        'company_id' => $company->id,
+    ]);
+    $this->actingAs($user, 'sanctum');
 
-    $updatedData = [
-        'name' => 'Updated Company',
-        // Add other fields to update here
-    ];
-
-    $response = $this->put("/api/companies/{$company->id}", $updatedData);
-
-    $response->assertStatus(200); // Assert successful update
-    $this->assertDatabaseHas('companies', $updatedData); // Check the company was updated
+    $response = $this->putJson("/api/v1/companies/{$company->id}",[
+        'name' => 'Updated Test Company',
+        'city_id' => 1,
+        'state_id' => 2,
+        'country_id' => 3,
+        'logo' => null
+    ]);
+    $response->assertStatus(200);
+    expect($response->json('data'))
+        ->id->toBe($company->id)
+        ->name->toBe('Updated Test Company')
+        ->city_id->toBe(1)
+        ->state_id->toBe(2)
+        ->country_id->toBe(3)
+        ->logo->toBeNull();
 });
 
-it('can delete a company', function () {
+it('can delete a company', function(){
+    $company = Company::factory()->create();
     $user = User::factory()->create();
-    $user->assignRole('administrator');
+    $this->actingAs($user, 'sanctum');
 
-    $this->actingAs($user);
+    $response = $this->deleteJson("api/v1/companies/{$company->id}");
+    $response->assertStatus(200);
+    $this->assertSoftDeleted('companies', ['id' => $company->id]);
+    $response = $this->getJson("/api/v1/companies/{$company->id}");
+    $response->assertStatus(404);
+});
 
+it('can restore a soft-deleted company', function (){
+    $company = Company::factory()->create();
+    $user = User::factory()->create();
+    $this->actingAs($user, 'sanctum');
+
+    $company->delete();
+    $this->assertSoftDeleted($company);
+
+    $response = $this->patchJson("api/v1/companies/{$company->id}/restore");
+    $response->assertStatus(200);
+
+    $restoredCompany = Company::find($company->id);
+    $this->assertNotSoftDeleted($restoredCompany);
+    expect($restoredCompany)
+        ->name->toBe($company->name);
+});
+
+it("can undo the soft deletes", function(){
+    $company = Company::factory()->create();
+    $user = User::factory()->create();
+    $this->actingAs($user, 'sanctum');
+
+    $company->delete();
+    $this->assertNotNull($company->fresh()->deleted_at); //verify that deleted_at col is not null or empty
+    $this->assertSoftDeleted('companies', ['id' => $company->id]);
+    $company->restore();
+    $this->assertNull($company->fresh()->deleted_at);
+    $this->assertDatabaseHas('companies',['id' => $company->id]);
+});
+
+it('company can have multiple positions', function() {
     $company = Company::factory()->create();
 
-    $response = $this->delete("/api/companies/{$company->id}");
+    $positions = Position::factory()->count(5)->create([
+        'company_id' => $company->id,
+    ]);
 
-    $response->assertStatus(204); // Assert no content (deleted)
-    $this->assertDatabaseMissing('companies', ['id' => $company->id]); // Check the company was deleted
+    $companyWithPositions = Company::with('positions')->find($company->id);
+
+    $this->assertCount(5, $companyWithPositions->positions);
+
+    foreach ($companyWithPositions->positions as $position) {
+        $this->assertEquals($company->id, $position->company_id);
+    }
 });

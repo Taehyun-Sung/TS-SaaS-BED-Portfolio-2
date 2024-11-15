@@ -21,32 +21,20 @@ class UserFactory extends Factory
      * Define the model's default state.
      *
      * @return array<string, mixed>
-     *
-     * ## Default Attributes
-     * - **nickname**: Random username.
-     * - **given_name**: Random first name.
-     * - **family_name**: Random last name.
-     * - **email**: Unique random email.
-     * - **password**: Hashed default password.
-     * - **company_id**: Foreign key to the Company model.
-     * - **user_type**: Random user type (client, staff, applicant).
-     * - **status**: Random status (active, unconfirmed, etc.).
-     * - **created_at**: Current timestamp.
-     * - **updated_at**: Current timestamp.
      */
-    public function definition()
+    public function definition(): array
     {
         return [
-            'nickname' => $this->faker->userName,
-            'given_name' => $this->faker->firstName,
-            'family_name' => $this->faker->lastName,
-            'email' => $this->faker->unique()->safeEmail,
-            'password' => Hash::make('password'), // or bcrypt('password')
-            'company_id' => Company::factory(),
-            'user_type' => $this->faker->randomElement(['client', 'staff', 'applicant']),
-            'status' => $this->faker->randomElement(['active', 'unconfirmed', 'suspended', 'banned', 'unknown']),
-            'created_at' => now(),
-            'updated_at' => now(),
+            'nickname' => fake()->optional()->userName(),
+            'given_name' => fake()->firstName(),
+            'family_name' => fake()->lastName(),
+            'email' => fake()->unique()->safeEmail(),
+            'email_verified_at' => now(),
+            'password' => static::$password ??= Hash::make('password'),
+            'remember_token' => Str::random(10),
+            'company_id' => fake()->boolean(50) ? Company::factory() : null,
+            'user_type' => fake()->randomElement(['client', 'staff', 'applicant']),
+            'status' => fake()->randomElement(['active', 'unconfirmed', 'suspended', 'banned', 'unknown']),
         ];
     }
 

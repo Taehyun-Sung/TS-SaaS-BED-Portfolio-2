@@ -2,152 +2,249 @@
 
 namespace App\Http\Controllers;
 
+use App\Classes\ApiResponseClass;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 
 class UserController extends Controller
 {
     /**
      * Display a listing of the users.
      *
-     * ## Get Users
-     * - **Endpoint**: `GET /users`
-     * - **Description**: Retrieves all users.
+     * Retrieve all users in the system. Only authorized users can access this resource.
      *
-     * **Successful Response (200)**:
-     * ```json
-     * {
-     *   "success": true,
-     *   "message": "Users retrieved successfully",
-     *   "data": [ ... ]  // Array of users
+     * @authenticated
+     * @response 200 scenario="Success" {
+     *   "data": [
+     *     {
+     *       "id": 1,
+     *       "nickname": "JohnDoe",
+     *       "given_name": "John",
+     *       "family_name": "Doe",
+     *       "email": "john@example.com",
+     *       "company_id": 1,
+     *       "user_type": "administrator",
+     *       "status": "active"
+     *     }
+     *   ],
+     *   "message": "Users retrieved successfully"
      * }
-     * ```
+     *
      */
     public function index()
     {
-        return response()->json(['success' => true, 'message' => 'Users retrieved successfully', 'data' => User::all()]);
+        Gate::authorize('browse', User::class);
+        $users = User::all();
+        return ApiResponseClass::sendResponse(
+            $users,
+            'Users retrieved successfully',
+            200
+        );
+    }
+
+    /**
+     * Store a newly created user in storage.
+     *
+     * Validates the provided data and creates a new user in the system.
+     *
+     * @bodyParam nickname string The user's nickname (optional). Example: JohnDoe
+     * @bodyParam given_name string required The user's first name. Example: John
+     * @bodyParam family_name string required The user's last name. Example: Doe
+     * @bodyParam email string required The user's email. Must be unique. Example: john@example.com
+     * @bodyParam password string required Minimum 8 characters. Example: password123
+     * @bodyParam company_id integer The ID of the company the user belongs to (optional). Example: 1
+     * @bodyParam user_type string required The role of the user (client, staff, applicant, administrator, super-user). Example: administrator
+     * @bodyParam status string required The user's status (active, unconfirmed, suspended, banned, unknown). Example: active
+     *
+     * @authenticated
+     * @response 201 scenario="User created successfully" {
+     *   "id": 2,
+     *   "nickname": "JaneDoe",
+     *   "given_name": "Jane",
+     *   "family_name": "Doe",
+     *   "email": "jane@example.com",
+     *   "user_type": "client",
+     *   "status": "active"
+     * }
+     */
+    public function store(Request $request)
+    {
+        Gate::authorize('create', User::class);
+        $validateData = $request->validate([
+            'nickname' => 'nullable|string|max:255',
+            'given_name' => 'required|string|max:255',
+            'family_name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users,email',
+            'password' => 'required|string|min:8',
+            'company_id' => 'nullable|exists:companies,id',
+            'user_type' => 'required|in:client,staff,applicant,administrator,super-user',
+            'status' => 'required|in:active,unconfirmed,suspended,banned,unknown',
+        ]);
+        $validateData['password'] = bcrypt($validateData['password']);
+        $user = User::create($validateData);
+        return ApiResponseClass::sendResponse(
+            $user,
+            'User created successfully',
+            201
+        );
     }
 
     /**
      * Display the specified user.
      *
-     * ## Get User
-     * - **Endpoint**: `GET /users/{id}`
-     * - **Description**: Retrieves a user by ID.
+     * Show the details of a specific user by ID.
      *
-     * **Successful Response (200)**:
-     * ```json
-     * {
-     *   "success": true,
-     *   "message": "User retrieved successfully",
-     *   "data": { ... }  // User details
+     * @urlParam user int required The ID of the user. Example: 1
+     *
+     * @authenticated
+     * @response 200 scenario="Success" {
+     *   "id": 1,
+     *   "nickname": "JohnDoe",
+     *   "given_name": "John",
+     *   "family_name": "Doe",
+     *   "email": "john@example.com",
+     *   "user_type": "administrator",
+     *   "status": "active"
      * }
-     * ```
      */
-    public function show($id)
+    public function show(User $user)
     {
-        $user = User::findOrFail($id);
-        return response()->json(['success' => true, 'message' => 'User retrieved successfully', 'data' => $user]);
+        Gate::authorize('view', $user);
+        return ApiResponseClass::sendResponse(
+            $user,
+            "User retrieved successfully",
+            200
+        );
     }
 
     /**
-     * Store a newly created user.
+     * Update the specified user in storage.
      *
-     * ## Create User
-     * - **Endpoint**: `POST /users`
-     * - **Description**: Creates a new user.
+     * Validates and updates the user’s details.
      *
-     * **Request Body (JSON)**:
-     * ```json
-     * {
-     *   "name": "John Doe",
-     *   "email": "user@example.com",
-     *   "password": "userpassword"
+     * @urlParam user int required The ID of the user. Example: 1
+     * @bodyParam given_name string required The user's first name. Example: John
+     * @bodyParam family_name string required The user's last name. Example: Doe
+     * @bodyParam email string required The user's email. Must be unique. Example: john@example.com
+     * @bodyParam password string required Minimum 8 characters. Example: password123
+     * @bodyParam company_id integer The ID of the company the user belongs to (optional). Example: 1
+     * @bodyParam user_type string required The role of the user (client, staff, applicant, administrator, super-user). Example: administrator
+     * @bodyParam status string required The user's status (active, unconfirmed, suspended, banned, unknown). Example: active
+     *
+     * @authenticated
+     * @response 200 scenario="Success" {
+     *   "id": 1,
+     *   "nickname": "JohnDoe",
+     *   "given_name": "John",
+     *   "family_name": "Doe",
+     *   "email": "john@example.com",
+     *   "user_type": "administrator",
+     *   "status": "active"
      * }
-     * ```
-     *
-     * **Successful Response (201)**:
-     * ```json
-     * {
-     *   "success": true,
-     *   "message": "User created successfully",
-     *   "data": { ... }  // User details
-     * }
-     * ```
-     *
-     * **Error Response (422)**:
-     * ```json
-     * {
-     *   "success": false,
-     *   "message": "The given data was invalid.",
-     *   "data": {
-     *     "email": ["The email has already been taken."]
-     *   }
-     * }
-     * ```
      */
-    public function store(Request $request)
+    public function update(Request $request, User $user)
     {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            // Add other validation rules as necessary
+        Gate::authorize('update', $user);
+        $validateData = $request->validate([
+            'nickname' => 'nullable|string|max:255',
+            'given_name' => 'required|string|max:255',
+            'family_name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users,email',
+            'password' => 'required|string|min:8',
+            'company_id' => 'nullable|exists:companies,id',
+            'user_type' => 'required|in:client,staff,applicant,administrator,super-user',
+            'status' => 'required|in:active,unconfirmed,suspended,banned,unknown',
         ]);
+        $validateData['password'] = bcrypt($validateData['password']);
+        $user->update($validateData);
 
-        $user = User::create($request->all());
-        return response()->json(['success' => true, 'message' => 'User created successfully', 'data' => $user], 201);
+        return ApiResponseClass::sendResponse(
+            $user,
+            'User updated successfully',
+            200
+        );
     }
 
     /**
-     * Update the specified user.
+     * Remove the specified user from storage (soft delete).
      *
-     * ## Update User
-     * - **Endpoint**: `PUT /users/{id}`
-     * - **Description**: Updates a user by ID.
+     * Marks the user as deleted (soft delete) and prevents them from accessing the system.
      *
-     * **Request Body (JSON)**:
-     * ```json
-     * {
-     *   "name": "Updated Name",
-     *   "email": "updated@example.com"
+     * @urlParam user int required The ID of the user. Example: 1
+     *
+     * @authenticated
+     * @response 200 scenario="Success" {
+     *   "id": 1,
+     *   "nickname": "JohnDoe",
+     *   "given_name": "John",
+     *   "family_name": "Doe",
+     *   "email": "john@example.com",
+     *   "user_type": "administrator",
+     *   "status": "deleted"
      * }
-     * ```
-     *
-     * **Successful Response (200)**:
-     * ```json
-     * {
-     *   "success": true,
-     *   "message": "User updated successfully",
-     *   "data": { ... }  // Updated user details
-     * }
-     * ```
      */
-    public function update(Request $request, $id)
+    public function destroy(User $user)
     {
-        $user = User::findOrFail($id);
-        $user->update($request->all());
-        return response()->json(['success' => true, 'message' => 'User updated successfully', 'data' => $user]);
-    }
-
-    /**
-     * Remove the specified user.
-     *
-     * ## Delete User
-     * - **Endpoint**: `DELETE /users/{id}`
-     * - **Description**: Deletes a user by ID.
-     *
-     * **Successful Response (200)**:
-     * ```json
-     * {
-     *   "success": true,
-     *   "message": "User deleted successfully"
-     * }
-     * ```
-     */
-    public function destroy($id)
-    {
-        $user = User::findOrFail($id);
+        Gate::authorize('delete', $user);
         $user->delete();
-        return response()->json(['success' => true, 'message' => 'User deleted successfully']);
+        return ApiResponseClass::sendResponse(
+            $user,
+            'User deleted successfully',
+            200
+        );
+    }
+
+    /**
+     * Restore a soft-deleted user.
+     *
+     * Restores a user that was previously soft-deleted.
+     *
+     * @urlParam id int required The ID of the user to restore. Example: 1
+     *
+     * @authenticated
+     * @response 200 scenario="User restored successfully" {
+     *   "id": 1,
+     *   "nickname": "JohnDoe",
+     *   "given_name": "John",
+     *   "family_name": "Doe",
+     *   "email": "john@example.com",
+     *   "status": "active"
+     * }
+     */
+    public function restore($id)
+    {
+        $user = User::onlyTrashed()->findOrFail($id);
+        Gate::authorize('restore', $user);
+        $user->restore();
+        return ApiResponseClass::sendResponse(
+            $user,
+            'User restored successfully',
+            200
+        );
+    }
+
+    /**
+     * Forcefully delete all users except the current user.
+     *
+     * Permanently deletes all users in the system except the currently logged-in user.
+     *
+     * @authenticated
+     * @response 200 scenario="Success" {
+     *   "success": true,
+     *   "message": "All users except the current user have been deleted successfully."
+     * }
+     */
+    public function destroyAll()
+    {
+        Gate::authorize('forceDeleteAll', User::class);
+        $currentUserId = auth()->id();
+        User::where('id', '!=', $currentUserId)->forceDelete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'All users except the current user have been deleted successfully.'
+        ], 200);
+
     }
 }
