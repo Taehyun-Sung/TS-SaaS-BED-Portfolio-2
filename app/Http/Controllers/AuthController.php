@@ -7,12 +7,19 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
+/**
+ * @group Authentication
+ *
+ * API endpoints for user registration, login, and logout functionalities.
+ * These endpoints allow users to register an account, login with their credentials, and logout by deleting their authentication tokens.
+ */
 class AuthController extends Controller
 {
     /**
      * Register a new user.
      *
-     * This endpoint allows a user to register with the provided details. A token is generated upon successful registration.
+     * This endpoint allows a user to register with the provided details. Upon successful registration, a token is generated and returned to the user.
+     * The registration data must include a unique email address, a valid password (min length 8 characters), and a user type.
      *
      * @bodyParam nickname string optional User's nickname. Max length: 255 characters.
      * @bodyParam given_name string required User's given name. Max length: 255 characters.
@@ -22,6 +29,7 @@ class AuthController extends Controller
      * @bodyParam company_id int optional ID of the company associated with the user.
      * @bodyParam user_type string required Type of user (client, staff, applicant, administrator, super-user).
      * @bodyParam status string required Status of the user (active, unconfirmed, suspended, banned, unknown).
+     *
      * @response 201 scenario="Successful registration" {
      *    "status": "success",
      *    "data": {
@@ -44,8 +52,12 @@ class AuthController extends Controller
      *        "email": ["The email has already been taken."]
      *    }
      * }
+     *
+     * @param Request $request
+     * @return array
      */
-    public function register(Request $request) {
+    public function register(Request $request)
+    {
         $validateData = $request->validate([
             'nickname' => 'nullable|string|max:255',
             'given_name' => 'required|string|max:255',
@@ -59,26 +71,22 @@ class AuthController extends Controller
         $validateData['password'] = Hash::make($validateData['password']);
         $user = User::create($validateData);
         $token = $user->createToken($user->given_name);
-//        return ApiResponseClass::sendResponse(
-//            $user,
-//            "You are registered successfully with token {$token->plainTextToken}",
-//            201
-//        );
+
         return [
             'user' => $user,
             'message' => "You are registered successfully.",
             'token' => $token->plainTextToken
         ];
-
     }
 
     /**
      * Login a user.
      *
-     * This endpoint allows a user to login with their email and password. A token is generated upon successful login.
+     * This endpoint allows a user to login with their email and password. A token is generated and returned upon successful login.
      *
      * @bodyParam email string required User's email address.
      * @bodyParam password string required User's password.
+     *
      * @response 200 scenario="Successful login" {
      *    "status": "success",
      *    "data": {
@@ -95,8 +103,12 @@ class AuthController extends Controller
      *    "status": "error",
      *    "message": "The provided credentials are incorrect"
      * }
+     *
+     * @param Request $request
+     * @return array
      */
-    public function login(Request $request) {
+    public function login(Request $request)
+    {
         $request->validate([
             'email' => 'required|email|exists:users',
             'password' => 'required'
@@ -111,11 +123,6 @@ class AuthController extends Controller
         }
         $token = $user->createToken($user->given_name);
 
-//        return ApiResponseClass::sendResponse(
-//            $user,
-//            "You are logged in successfully with token {$token->plainTextToken}",
-//            200
-//        );
         return [
             'user' => $user,
             'message' => "You are logged in successfully.",
@@ -126,23 +133,22 @@ class AuthController extends Controller
     /**
      * Logout the user.
      *
-     * This endpoint allows the user to logout by deleting their authentication tokens.
+     * This endpoint allows the user to logout by deleting their authentication tokens, effectively invalidating any active sessions.
      *
      * @response 200 scenario="Successful logout" {
      *    "status": "success",
      *    "message": "You are logged out successfully."
      * }
+     *
+     * @param Request $request
+     * @return array
      */
-    public function logout(Request $request) {
+    public function logout(Request $request)
+    {
         $request->user()->tokens()->delete();
-//        return ApiResponseClass::sendResponse(
-//            null,
-//            "You are logged out successfully.",
-//            200
-//        );
+
         return [
             'message' => "You are logged out successfully."
         ];
-
     }
 }

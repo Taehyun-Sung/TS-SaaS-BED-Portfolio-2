@@ -4,13 +4,17 @@ namespace App\Http\Controllers;
 
 use App\Classes\ApiResponseClass;
 use App\Models\Company;
-
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Support\Facades\Gate;
 
+/**
+ * @group Companies
+ *
+ * APIs to manage companies including creating, updating, retrieving, and deleting companies.
+ */
 class CompanyController extends Controller
 {
     /**
@@ -19,7 +23,8 @@ class CompanyController extends Controller
      * This endpoint retrieves all the companies from the database.
      *
      * @response 200 scenario="Successful response" {
-     *    "status": "success",
+     *    "success": true,
+     *    "message": "Companies retrieved successfully",
      *    "data": [
      *        {
      *            "id": 1,
@@ -29,9 +34,10 @@ class CompanyController extends Controller
      *            "country_id": 1,
      *            "logo": null
      *        }
-     *    ],
-     *    "message": "Companies retrieved successfully"
+     *    ]
      * }
+     *
+     * @return \Illuminate\Http\JsonResponse
      */
     public function index(Request $request)
     {
@@ -41,7 +47,6 @@ class CompanyController extends Controller
             $company,
             "Companies retrieved successfully"
         );
-
     }
 
     /**
@@ -50,8 +55,10 @@ class CompanyController extends Controller
      * This endpoint retrieves the details of a specific company using its ID.
      *
      * @urlParam company int required The ID of the company to retrieve.
+     *
      * @response 200 scenario="Successful response" {
-     *    "status": "success",
+     *    "success": true,
+     *    "message": "Company retrieved successfully",
      *    "data": {
      *        "id": 1,
      *        "name": "Company A",
@@ -59,9 +66,11 @@ class CompanyController extends Controller
      *        "state_id": 1,
      *        "country_id": 1,
      *        "logo": null
-     *    },
-     *    "message": "Company retrieved successfully"
+     *    }
      * }
+     *
+     * @param \App\Models\Company $company
+     * @return \Illuminate\Http\JsonResponse
      */
     public function show(Company $company)
     {
@@ -81,8 +90,10 @@ class CompanyController extends Controller
      * @bodyParam state_id int required The ID of the state where the company is located.
      * @bodyParam country_id int required The ID of the country where the company is located.
      * @bodyParam logo file Optional logo of the company.
+     *
      * @response 201 scenario="Company created successfully" {
-     *    "status": "success",
+     *    "success": true,
+     *    "message": "Company created successfully",
      *    "data": {
      *        "id": 2,
      *        "name": "Company B",
@@ -90,11 +101,14 @@ class CompanyController extends Controller
      *        "state_id": 2,
      *        "country_id": 2,
      *        "logo": null
-     *    },
-     *    "message": "Company created successfully"
+     *    }
      * }
+     *
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function store(Request $request) {
+    public function store(Request $request)
+    {
         Gate::authorize('create', Company::class);
 
         $validateData = $request->validate([
@@ -138,8 +152,10 @@ class CompanyController extends Controller
      * @bodyParam state_id int required The updated state ID.
      * @bodyParam country_id int required The updated country ID.
      * @bodyParam logo file Optional updated company logo.
+     *
      * @response 200 scenario="Successful update" {
-     *    "status": "success",
+     *    "success": true,
+     *    "message": "Company updated successfully",
      *    "data": {
      *        "id": 1,
      *        "name": "Updated Company",
@@ -147,9 +163,12 @@ class CompanyController extends Controller
      *        "state_id": 1,
      *        "country_id": 1,
      *        "logo": null
-     *    },
-     *    "message": "Company updated successfully"
+     *    }
      * }
+     *
+     * @param \Illuminate\Http\Request $request
+     * @param \App\Models\Company $company
+     * @return \Illuminate\Http\JsonResponse
      */
     public function update(Request $request, Company $company)
     {
@@ -164,9 +183,6 @@ class CompanyController extends Controller
         ]);
 
         $company->update($request->only(['name', 'city_id', 'state_id', 'country_id', 'logo']));
-
-
-        $company->update($validateData);
         return ApiResponseClass::sendResponse(
             $company,
             'Company updated successfully',
@@ -180,10 +196,14 @@ class CompanyController extends Controller
      * This endpoint allows an authorized user to delete a company by its ID.
      *
      * @urlParam company int required The ID of the company to delete.
+     *
      * @response 200 scenario="Successful deletion" {
-     *    "status": "success",
+     *    "success": true,
      *    "message": "Company deleted successfully"
      * }
+     *
+     * @param \App\Models\Company $company
+     * @return \Illuminate\Http\JsonResponse
      */
     public function destroy(Company $company)
     {
@@ -204,6 +224,8 @@ class CompanyController extends Controller
      * @response 200 scenario="All companies deleted" {
      *    "message": "All companies permanently deleted successfully"
      * }
+     *
+     * @return \Illuminate\Http\JsonResponse
      */
     public function destroyAll()
     {
@@ -223,10 +245,14 @@ class CompanyController extends Controller
      * This endpoint allows an authorized user to restore a company that was soft-deleted.
      *
      * @urlParam id int required The ID of the company to restore.
+     *
      * @response 200 scenario="Company restored" {
-     *    "status": "success",
+     *    "success": true,
      *    "message": "Company restored successfully"
      * }
+     *
+     * @param int $id
+     * @return \Illuminate\Http\JsonResponse
      */
     public function restore($id)
     {
@@ -248,6 +274,8 @@ class CompanyController extends Controller
      * @response 200 scenario="All companies restored" {
      *    "message": "All companies restored successfully"
      * }
+     *
+     * @return \Illuminate\Http\JsonResponse
      */
     public function restoreAll()
     {

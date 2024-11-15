@@ -7,12 +7,17 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 
+/**
+ * @group User Management
+ *
+ * APIs for managing users in the system, including CRUD operations and restoring deleted users.
+ */
 class UserController extends Controller
 {
     /**
      * Display a listing of the users.
      *
-     * Retrieve all users in the system. Only authorized users can access this resource.
+     * This endpoint retrieves all users in the system. Only authorized users (based on user roles) can access this resource.
      *
      * @authenticated
      * @response 200 scenario="Success" {
@@ -31,6 +36,7 @@ class UserController extends Controller
      *   "message": "Users retrieved successfully"
      * }
      *
+     * @return \Illuminate\Http\JsonResponse
      */
     public function index()
     {
@@ -46,7 +52,7 @@ class UserController extends Controller
     /**
      * Store a newly created user in storage.
      *
-     * Validates the provided data and creates a new user in the system.
+     * This endpoint validates the provided data and creates a new user in the system.
      *
      * @bodyParam nickname string The user's nickname (optional). Example: JohnDoe
      * @bodyParam given_name string required The user's first name. Example: John
@@ -67,6 +73,8 @@ class UserController extends Controller
      *   "user_type": "client",
      *   "status": "active"
      * }
+     *
+     * @return \Illuminate\Http\JsonResponse
      */
     public function store(Request $request)
     {
@@ -107,6 +115,8 @@ class UserController extends Controller
      *   "user_type": "administrator",
      *   "status": "active"
      * }
+     *
+     * @return \Illuminate\Http\JsonResponse
      */
     public function show(User $user)
     {
@@ -142,6 +152,8 @@ class UserController extends Controller
      *   "user_type": "administrator",
      *   "status": "active"
      * }
+     *
+     * @return \Illuminate\Http\JsonResponse
      */
     public function update(Request $request, User $user)
     {
@@ -183,6 +195,8 @@ class UserController extends Controller
      *   "user_type": "administrator",
      *   "status": "deleted"
      * }
+     *
+     * @return \Illuminate\Http\JsonResponse
      */
     public function destroy(User $user)
     {
@@ -211,6 +225,8 @@ class UserController extends Controller
      *   "email": "john@example.com",
      *   "status": "active"
      * }
+     *
+     * @return \Illuminate\Http\JsonResponse
      */
     public function restore($id)
     {
@@ -232,19 +248,19 @@ class UserController extends Controller
      * @authenticated
      * @response 200 scenario="Success" {
      *   "success": true,
-     *   "message": "All users except the current user have been deleted successfully."
+     *   "message": "All users except the current one have been deleted."
      * }
+     *
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function destroyAll()
+    public function forceDeleteAll()
     {
-        Gate::authorize('forceDeleteAll', User::class);
-        $currentUserId = auth()->id();
-        User::where('id', '!=', $currentUserId)->forceDelete();
-
-        return response()->json([
-            'success' => true,
-            'message' => 'All users except the current user have been deleted successfully.'
-        ], 200);
-
+        $currentUser = auth()->user();
+        User::where('id', '!=', $currentUser->id)->delete();
+        return ApiResponseClass::sendResponse(
+            null,
+            'All users except the current one have been deleted.',
+            200
+        );
     }
 }

@@ -1,0 +1,1721 @@
+openapi: 3.0.3
+info:
+  title: Laravel
+  description: ''
+  version: 1.0.0
+servers:
+  -
+    url: 'http://localhost:8000'
+paths:
+  /api/v1/register:
+    post:
+      summary: 'Register a new user.'
+      operationId: registerANewUser
+      description: "This endpoint allows a user to register with the provided details. Upon successful registration, a token is generated and returned to the user.\nThe registration data must include a unique email address, a valid password (min length 8 characters), and a user type."
+      parameters: []
+      responses:
+        201:
+          description: 'Successful registration'
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  status: success
+                  data:
+                    id: 1
+                    nickname: JohnDoe
+                    given_name: John
+                    family_name: Doe
+                    email: john.doe@example.com
+                    company_id: 1
+                    user_type: client
+                    status: active
+                    token: generated_token_here
+                  message: 'You are registered successfully with token generated_token_here'
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        example: 1
+                      nickname:
+                        type: string
+                        example: JohnDoe
+                      given_name:
+                        type: string
+                        example: John
+                      family_name:
+                        type: string
+                        example: Doe
+                      email:
+                        type: string
+                        example: john.doe@example.com
+                      company_id:
+                        type: integer
+                        example: 1
+                      user_type:
+                        type: string
+                        example: client
+                      status:
+                        type: string
+                        example: active
+                      token:
+                        type: string
+                        example: generated_token_here
+                  message:
+                    type: string
+                    example: 'You are registered successfully with token generated_token_here'
+        422:
+          description: 'Validation Error'
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  status: error
+                  message: 'The given data was invalid.'
+                  errors:
+                    email:
+                      - 'The email has already been taken.'
+                properties:
+                  status:
+                    type: string
+                    example: error
+                  message:
+                    type: string
+                    example: 'The given data was invalid.'
+                  errors:
+                    type: object
+                    properties:
+                      email:
+                        type: array
+                        example:
+                          - 'The email has already been taken.'
+                        items:
+                          type: string
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                nickname:
+                  type: string
+                  description: "optional User's nickname. Max length: 255 characters."
+                  example: ut
+                  nullable: true
+                given_name:
+                  type: string
+                  description: "User's given name. Max length: 255 characters."
+                  example: voluptatum
+                  nullable: false
+                family_name:
+                  type: string
+                  description: "User's family name. Max length: 255 characters."
+                  example: autem
+                  nullable: false
+                email:
+                  type: string
+                  description: "User's email address. Must be unique."
+                  example: ugrady@example.org
+                  nullable: false
+                password:
+                  type: string
+                  description: "User's password. Min length: 8 characters."
+                  example: T8L)RSl/
+                  nullable: false
+                company_id:
+                  type: integer
+                  description: 'optional ID of the company associated with the user.'
+                  example: 18
+                  nullable: true
+                user_type:
+                  type: string
+                  description: 'Type of user (client, staff, applicant, administrator, super-user).'
+                  example: sit
+                  nullable: false
+                status:
+                  type: string
+                  description: 'Status of the user (active, unconfirmed, suspended, banned, unknown).'
+                  example: labore
+                  nullable: false
+              required:
+                - given_name
+                - family_name
+                - email
+                - password
+                - user_type
+                - status
+      security: []
+  /api/v1/logout:
+    post:
+      summary: 'Logout the user.'
+      operationId: logoutTheUser
+      description: 'This endpoint allows the user to logout by deleting their authentication tokens, effectively invalidating any active sessions.'
+      parameters: []
+      responses:
+        200:
+          description: 'Successful logout'
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  status: success
+                  message: 'You are logged out successfully.'
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  message:
+                    type: string
+                    example: 'You are logged out successfully.'
+      tags:
+        - Authentication
+      security: []
+  /api/v1/companies:
+    get:
+      summary: 'Get all companies.'
+      operationId: getAllCompanies
+      description: 'This endpoint retrieves all the companies from the database.'
+      parameters: []
+      responses:
+        200:
+          description: 'Successful response'
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  success: true
+                  message: 'Companies retrieved successfully'
+                  data:
+                    -
+                      id: 1
+                      name: 'Company A'
+                      city_id: 1
+                      state_id: 1
+                      country_id: 1
+                      logo: null
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: 'Companies retrieved successfully'
+                  data:
+                    type: array
+                    example:
+                      -
+                        id: 1
+                        name: 'Company A'
+                        city_id: 1
+                        state_id: 1
+                        country_id: 1
+                        logo: null
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                          example: 1
+                        name:
+                          type: string
+                          example: 'Company A'
+                        city_id:
+                          type: integer
+                          example: 1
+                        state_id:
+                          type: integer
+                          example: 1
+                        country_id:
+                          type: integer
+                          example: 1
+                        logo:
+                          type: string
+                          example: null
+      tags:
+        - Companies
+      security: []
+    post:
+      summary: 'Create a new company.'
+      operationId: createANewCompany
+      description: 'This endpoint allows authorized users to create a new company in the database.'
+      parameters: []
+      responses:
+        201:
+          description: 'Company created successfully'
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  success: true
+                  message: 'Company created successfully'
+                  data:
+                    id: 2
+                    name: 'Company B'
+                    city_id: 2
+                    state_id: 2
+                    country_id: 2
+                    logo: null
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: 'Company created successfully'
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        example: 2
+                      name:
+                        type: string
+                        example: 'Company B'
+                      city_id:
+                        type: integer
+                        example: 2
+                      state_id:
+                        type: integer
+                        example: 2
+                      country_id:
+                        type: integer
+                        example: 2
+                      logo:
+                        type: string
+                        example: null
+      tags:
+        - Companies
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: 'The name of the company.'
+                  example: quas
+                  nullable: false
+                city_id:
+                  type: integer
+                  description: 'The ID of the city where the company is located.'
+                  example: 1
+                  nullable: false
+                state_id:
+                  type: integer
+                  description: 'The ID of the state where the company is located.'
+                  example: 16
+                  nullable: false
+                country_id:
+                  type: integer
+                  description: 'The ID of the country where the company is located.'
+                  example: 10
+                  nullable: false
+                logo:
+                  type: string
+                  format: binary
+                  description: 'Optional logo of the company.'
+                  nullable: true
+              required:
+                - name
+                - city_id
+                - state_id
+                - country_id
+      security: []
+  '/api/v1/companies/{id}':
+    get:
+      summary: 'Get a single company by ID.'
+      operationId: getASingleCompanyByID
+      description: 'This endpoint retrieves the details of a specific company using its ID.'
+      parameters: []
+      responses:
+        200:
+          description: 'Successful response'
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  success: true
+                  message: 'Company retrieved successfully'
+                  data:
+                    id: 1
+                    name: 'Company A'
+                    city_id: 1
+                    state_id: 1
+                    country_id: 1
+                    logo: null
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: 'Company retrieved successfully'
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        example: 1
+                      name:
+                        type: string
+                        example: 'Company A'
+                      city_id:
+                        type: integer
+                        example: 1
+                      state_id:
+                        type: integer
+                        example: 1
+                      country_id:
+                        type: integer
+                        example: 1
+                      logo:
+                        type: string
+                        example: null
+      tags:
+        - Companies
+      security: []
+    put:
+      summary: 'Update a company by ID.'
+      operationId: updateACompanyByID
+      description: 'This endpoint allows an authorized user to update the details of an existing company.'
+      parameters: []
+      responses:
+        200:
+          description: 'Successful update'
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  success: true
+                  message: 'Company updated successfully'
+                  data:
+                    id: 1
+                    name: 'Updated Company'
+                    city_id: 1
+                    state_id: 1
+                    country_id: 1
+                    logo: null
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: 'Company updated successfully'
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        example: 1
+                      name:
+                        type: string
+                        example: 'Updated Company'
+                      city_id:
+                        type: integer
+                        example: 1
+                      state_id:
+                        type: integer
+                        example: 1
+                      country_id:
+                        type: integer
+                        example: 1
+                      logo:
+                        type: string
+                        example: null
+      tags:
+        - Companies
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: 'The updated name of the company.'
+                  example: accusamus
+                  nullable: false
+                city_id:
+                  type: integer
+                  description: 'The updated city ID.'
+                  example: 18
+                  nullable: false
+                state_id:
+                  type: integer
+                  description: 'The updated state ID.'
+                  example: 17
+                  nullable: false
+                country_id:
+                  type: integer
+                  description: 'The updated country ID.'
+                  example: 14
+                  nullable: false
+                logo:
+                  type: string
+                  format: binary
+                  description: 'Optional updated company logo.'
+                  nullable: true
+              required:
+                - name
+                - city_id
+                - state_id
+                - country_id
+      security: []
+    delete:
+      summary: 'Delete a company by ID.'
+      operationId: deleteACompanyByID
+      description: 'This endpoint allows an authorized user to delete a company by its ID.'
+      parameters: []
+      responses:
+        200:
+          description: 'Successful deletion'
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  success: true
+                  message: 'Company deleted successfully'
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: 'Company deleted successfully'
+      tags:
+        - Companies
+      security: []
+    parameters:
+      -
+        in: path
+        name: id
+        description: 'The ID of the company.'
+        example: 10
+        required: true
+        schema:
+          type: integer
+      -
+        in: path
+        name: company
+        description: 'The ID of the company to retrieve.'
+        example: 2
+        required: true
+        schema:
+          type: integer
+  '/api/v1/companies/{id}/restore':
+    patch:
+      summary: 'Restore a deleted company by ID.'
+      operationId: restoreADeletedCompanyByID
+      description: 'This endpoint allows an authorized user to restore a company that was soft-deleted.'
+      parameters: []
+      responses:
+        200:
+          description: 'Company restored'
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  success: true
+                  message: 'Company restored successfully'
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: 'Company restored successfully'
+      tags:
+        - Companies
+      security: []
+    parameters:
+      -
+        in: path
+        name: id
+        description: 'The ID of the company to restore.'
+        example: 8
+        required: true
+        schema:
+          type: integer
+  /api/v1/companies/restore-all:
+    patch:
+      summary: 'Restore all soft-deleted companies.'
+      operationId: restoreAllSoftDeletedCompanies
+      description: 'This endpoint allows an authorized user to restore all soft-deleted companies.'
+      parameters: []
+      responses:
+        200:
+          description: 'All companies restored'
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: 'All companies restored successfully'
+                properties:
+                  message:
+                    type: string
+                    example: 'All companies restored successfully'
+      tags:
+        - Companies
+      security: []
+  /api/v1/positions:
+    get:
+      summary: 'Display a listing of the positions.'
+      operationId: displayAListingOfThePositions
+      description: "This endpoint retrieves a list of positions based on user authentication status:\n- Authenticated users: Receives paginated results of positions.\n- Unauthenticated users: Receives a limited number of positions."
+      parameters:
+        -
+          in: query
+          name: page
+          description: 'The page number for pagination (defaults to 1).'
+          example: 7
+          required: false
+          schema:
+            type: integer
+            description: 'The page number for pagination (defaults to 1).'
+            example: 7
+            nullable: false
+      responses:
+        200:
+          description: 'Successful response'
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  success: true
+                  message: 'Positions retrieved successfully'
+                  data:
+                    -
+                      id: 1
+                      advertising_start_date: '2024-01-01'
+                      advertising_end_date: '2024-01-31'
+                      title: 'Position Title'
+                      description: 'Position Description'
+                      keywords: 'keyword1, keyword2'
+                      min_salary: 50000
+                      max_salary: 70000
+                      salary_currency: AUD
+                      company_id: 1
+                      user_id: 1
+                      benefits: 'Benefit details'
+                      requirements: 'Requirement details'
+                      position_type: permanent
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: 'Positions retrieved successfully'
+                  data:
+                    type: array
+                    example:
+                      -
+                        id: 1
+                        advertising_start_date: '2024-01-01'
+                        advertising_end_date: '2024-01-31'
+                        title: 'Position Title'
+                        description: 'Position Description'
+                        keywords: 'keyword1, keyword2'
+                        min_salary: 50000
+                        max_salary: 70000
+                        salary_currency: AUD
+                        company_id: 1
+                        user_id: 1
+                        benefits: 'Benefit details'
+                        requirements: 'Requirement details'
+                        position_type: permanent
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                          example: 1
+                        advertising_start_date:
+                          type: string
+                          example: '2024-01-01'
+                        advertising_end_date:
+                          type: string
+                          example: '2024-01-31'
+                        title:
+                          type: string
+                          example: 'Position Title'
+                        description:
+                          type: string
+                          example: 'Position Description'
+                        keywords:
+                          type: string
+                          example: 'keyword1, keyword2'
+                        min_salary:
+                          type: integer
+                          example: 50000
+                        max_salary:
+                          type: integer
+                          example: 70000
+                        salary_currency:
+                          type: string
+                          example: AUD
+                        company_id:
+                          type: integer
+                          example: 1
+                        user_id:
+                          type: integer
+                          example: 1
+                        benefits:
+                          type: string
+                          example: 'Benefit details'
+                        requirements:
+                          type: string
+                          example: 'Requirement details'
+                        position_type:
+                          type: string
+                          example: permanent
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  success: false
+                  message: 'You must be logged in to view this position.'
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: 'You must be logged in to view this position.'
+      tags:
+        - 'Position Management'
+      security: []
+    post:
+      summary: 'Store a newly created position in storage.'
+      operationId: storeANewlyCreatedPositionInStorage
+      description: "This endpoint allows authorized users to create a new position. All fields marked as required must\nbe provided, and the user must be authorized to create positions."
+      parameters: []
+      responses:
+        201:
+          description: 'Position created successfully'
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  success: true
+                  message: 'Position created successfully'
+                  data:
+                    id: 1
+                    advertising_start_date: '2024-01-01'
+                    advertising_end_date: '2024-01-31'
+                    title: 'Position Title'
+                    description: 'Position Description'
+                    keywords: 'keyword1, keyword2'
+                    min_salary: 50000
+                    max_salary: 70000
+                    salary_currency: AUD
+                    company_id: 1
+                    user_id: 1
+                    benefits: 'Benefit details'
+                    requirements: 'Requirement details'
+                    position_type: permanent
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: 'Position created successfully'
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        example: 1
+                      advertising_start_date:
+                        type: string
+                        example: '2024-01-01'
+                      advertising_end_date:
+                        type: string
+                        example: '2024-01-31'
+                      title:
+                        type: string
+                        example: 'Position Title'
+                      description:
+                        type: string
+                        example: 'Position Description'
+                      keywords:
+                        type: string
+                        example: 'keyword1, keyword2'
+                      min_salary:
+                        type: integer
+                        example: 50000
+                      max_salary:
+                        type: integer
+                        example: 70000
+                      salary_currency:
+                        type: string
+                        example: AUD
+                      company_id:
+                        type: integer
+                        example: 1
+                      user_id:
+                        type: integer
+                        example: 1
+                      benefits:
+                        type: string
+                        example: 'Benefit details'
+                      requirements:
+                        type: string
+                        example: 'Requirement details'
+                      position_type:
+                        type: string
+                        example: permanent
+        403:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  success: false
+                  message: 'This action is unauthorized.'
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: 'This action is unauthorized.'
+      tags:
+        - 'Position Management'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                advertising_start_date:
+                  type: string
+                  description: 'The start date for advertising the position.'
+                  example: quia
+                  nullable: false
+                advertising_end_date:
+                  type: string
+                  description: 'The end date for advertising the position.'
+                  example: iste
+                  nullable: false
+                title:
+                  type: string
+                  description: 'The title of the position.'
+                  example: modi
+                  nullable: false
+                description:
+                  type: string
+                  description: 'The description of the position.'
+                  example: 'Fugit distinctio laborum quo et delectus dolor libero.'
+                  nullable: false
+                keywords:
+                  type: string
+                  description: 'optional Keywords related to the position.'
+                  example: magnam
+                  nullable: true
+                min_salary:
+                  type: numeric
+                  description: 'optional The minimum salary for the position.'
+                  example: amet
+                  nullable: true
+                max_salary:
+                  type: numeric
+                  description: 'optional The maximum salary for the position.'
+                  example: dolores
+                  nullable: true
+                salary_currency:
+                  type: string
+                  description: 'optional The currency of the salary. Defaults to AUD.'
+                  example: soluta
+                  nullable: true
+                company_id:
+                  type: integer
+                  description: 'The ID of the company offering the position.'
+                  example: 18
+                  nullable: false
+                user_id:
+                  type: integer
+                  description: 'The ID of the user creating the position.'
+                  example: 12
+                  nullable: false
+                benefits:
+                  type: string
+                  description: 'optional Benefits associated with the position.'
+                  example: eius
+                  nullable: true
+                requirements:
+                  type: string
+                  description: 'optional Requirements for the position.'
+                  example: eveniet
+                  nullable: true
+                position_type:
+                  type: string
+                  description: 'The type of the position (permanent, contract, part-time, casual).'
+                  example: nostrum
+                  nullable: false
+              required:
+                - advertising_start_date
+                - advertising_end_date
+                - title
+                - description
+                - company_id
+                - user_id
+                - position_type
+      security: []
+  '/api/v1/positions/{id}':
+    get:
+      summary: 'Display the specified position.'
+      operationId: displayTheSpecifiedPosition
+      description: 'This endpoint retrieves a specific position by its ID. Users must be authenticated to access this endpoint.'
+      parameters: []
+      responses:
+        200:
+          description: 'Successful response'
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  success: true
+                  message: 'Position retrieved successfully'
+                  data:
+                    id: 1
+                    advertising_start_date: '2024-01-01'
+                    advertising_end_date: '2024-01-31'
+                    title: 'Position Title'
+                    description: 'Position Description'
+                    keywords: 'keyword1, keyword2'
+                    min_salary: 50000
+                    max_salary: 70000
+                    salary_currency: AUD
+                    company_id: 1
+                    user_id: 1
+                    benefits: 'Benefit details'
+                    requirements: 'Requirement details'
+                    position_type: permanent
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: 'Position retrieved successfully'
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        example: 1
+                      advertising_start_date:
+                        type: string
+                        example: '2024-01-01'
+                      advertising_end_date:
+                        type: string
+                        example: '2024-01-31'
+                      title:
+                        type: string
+                        example: 'Position Title'
+                      description:
+                        type: string
+                        example: 'Position Description'
+                      keywords:
+                        type: string
+                        example: 'keyword1, keyword2'
+                      min_salary:
+                        type: integer
+                        example: 50000
+                      max_salary:
+                        type: integer
+                        example: 70000
+                      salary_currency:
+                        type: string
+                        example: AUD
+                      company_id:
+                        type: integer
+                        example: 1
+                      user_id:
+                        type: integer
+                        example: 1
+                      benefits:
+                        type: string
+                        example: 'Benefit details'
+                      requirements:
+                        type: string
+                        example: 'Requirement details'
+                      position_type:
+                        type: string
+                        example: permanent
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  success: false
+                  message: 'You must be logged in to view this position.'
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: 'You must be logged in to view this position.'
+        404:
+          description: 'Not found'
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  success: false
+                  message: 'Position not found'
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: 'Position not found'
+      tags:
+        - 'Position Management'
+      security: []
+    put:
+      summary: 'Update the specified position in storage.'
+      operationId: updateTheSpecifiedPositionInStorage
+      description: 'This endpoint allows an authorized user to update the details of a specific position.'
+      parameters: []
+      responses:
+        200:
+          description: 'Position updated successfully'
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  success: true
+                  message: 'Position updated successfully'
+                  data:
+                    id: 1
+                    advertising_start_date: '2024-01-01'
+                    advertising_end_date: '2024-01-31'
+                    title: 'Position Title'
+                    description: 'Position Description'
+                    keywords: 'keyword1, keyword2'
+                    min_salary: 50000
+                    max_salary: 70000
+                    salary_currency: AUD
+                    company_id: 1
+                    user_id: 1
+                    benefits: 'Benefit details'
+                    requirements: 'Requirement details'
+                    position_type: permanent
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: 'Position updated successfully'
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        example: 1
+                      advertising_start_date:
+                        type: string
+                        example: '2024-01-01'
+                      advertising_end_date:
+                        type: string
+                        example: '2024-01-31'
+                      title:
+                        type: string
+                        example: 'Position Title'
+                      description:
+                        type: string
+                        example: 'Position Description'
+                      keywords:
+                        type: string
+                        example: 'keyword1, keyword2'
+                      min_salary:
+                        type: integer
+                        example: 50000
+                      max_salary:
+                        type: integer
+                        example: 70000
+                      salary_currency:
+                        type: string
+                        example: AUD
+                      company_id:
+                        type: integer
+                        example: 1
+                      user_id:
+                        type: integer
+                        example: 1
+                      benefits:
+                        type: string
+                        example: 'Benefit details'
+                      requirements:
+                        type: string
+                        example: 'Requirement details'
+                      position_type:
+                        type: string
+                        example: permanent
+        403:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  success: false
+                  message: 'This action is unauthorized.'
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: 'This action is unauthorized.'
+        404:
+          description: 'Not found'
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  success: false
+                  message: 'Position not found'
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: 'Position not found'
+      tags:
+        - 'Position Management'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                advertising_start_date:
+                  type: string
+                  description: 'The updated start date for advertising the position.'
+                  example: non
+                  nullable: false
+                advertising_end_date:
+                  type: string
+                  description: 'The updated end date for advertising the position.'
+                  example: et
+                  nullable: false
+                title:
+                  type: string
+                  description: 'The updated title of the position.'
+                  example: optio
+                  nullable: false
+                description:
+                  type: string
+                  description: 'The updated description of the position.'
+                  example: 'Iure ut natus quo suscipit temporibus totam.'
+                  nullable: false
+                keywords:
+                  type: array
+                  description: 'optional Updated keywords related to the position.'
+                  example:
+                    - et
+                  items:
+                    type: string
+                    nullable: true
+                min_salary:
+                  type: numeric
+                  description: 'optional Updated minimum salary for the position.'
+                  example: libero
+                  nullable: true
+                max_salary:
+                  type: numeric
+                  description: 'optional Updated maximum salary for the position.'
+                  example: quasi
+                  nullable: true
+                salary_currency:
+                  type: string
+                  description: 'optional Updated currency of the salary. Defaults to AUD.'
+                  example: magni
+                  nullable: true
+                company_id:
+                  type: integer
+                  description: 'The ID of the company offering the position.'
+                  example: 5
+                  nullable: false
+                user_id:
+                  type: integer
+                  description: 'The ID of the user creating the position.'
+                  example: 20
+                  nullable: false
+                benefits:
+                  type: string
+                  description: 'optional Updated benefits associated with the position.'
+                  example: quis
+                  nullable: true
+                requirements:
+                  type: string
+                  description: 'optional Updated requirements for the position.'
+                  example: eligendi
+                  nullable: true
+                position_type:
+                  type: string
+                  description: 'Updated type of the position (permanent, contract, part-time, casual).'
+                  example: est
+                  nullable: false
+              required:
+                - advertising_start_date
+                - advertising_end_date
+                - title
+                - description
+                - company_id
+                - user_id
+                - position_type
+      security: []
+    delete:
+      summary: 'Remove the specified position from storage.'
+      operationId: removeTheSpecifiedPositionFromStorage
+      description: 'This endpoint allows an authorized user to delete a specific position.'
+      parameters: []
+      responses:
+        200:
+          description: 'Position deleted successfully'
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  success: true
+                  message: 'Position deleted successfully'
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: 'Position deleted successfully'
+        403:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  success: false
+                  message: 'This action is unauthorized.'
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: 'This action is unauthorized.'
+        404:
+          description: 'Not found'
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  success: false
+                  message: 'Position not found'
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: 'Position not found'
+      tags:
+        - 'Position Management'
+      security: []
+    parameters:
+      -
+        in: path
+        name: id
+        description: 'The ID of the position.'
+        example: 2
+        required: true
+        schema:
+          type: integer
+      -
+        in: path
+        name: position
+        description: 'The ID of the position to retrieve.'
+        example: 9
+        required: true
+        schema:
+          type: integer
+  /api/v1/users:
+    get:
+      summary: 'Display a listing of the users.'
+      operationId: displayAListingOfTheUsers
+      description: 'This endpoint retrieves all users in the system. Only authorized users (based on user roles) can access this resource.'
+      parameters: []
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  data:
+                    -
+                      id: 1
+                      nickname: JohnDoe
+                      given_name: John
+                      family_name: Doe
+                      email: john@example.com
+                      company_id: 1
+                      user_type: administrator
+                      status: active
+                  message: 'Users retrieved successfully'
+                properties:
+                  data:
+                    type: array
+                    example:
+                      -
+                        id: 1
+                        nickname: JohnDoe
+                        given_name: John
+                        family_name: Doe
+                        email: john@example.com
+                        company_id: 1
+                        user_type: administrator
+                        status: active
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                          example: 1
+                        nickname:
+                          type: string
+                          example: JohnDoe
+                        given_name:
+                          type: string
+                          example: John
+                        family_name:
+                          type: string
+                          example: Doe
+                        email:
+                          type: string
+                          example: john@example.com
+                        company_id:
+                          type: integer
+                          example: 1
+                        user_type:
+                          type: string
+                          example: administrator
+                        status:
+                          type: string
+                          example: active
+                  message:
+                    type: string
+                    example: 'Users retrieved successfully'
+      tags:
+        - 'User Management'
+    post:
+      summary: 'Store a newly created user in storage.'
+      operationId: storeANewlyCreatedUserInStorage
+      description: 'This endpoint validates the provided data and creates a new user in the system.'
+      parameters: []
+      responses:
+        201:
+          description: 'User created successfully'
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  id: 2
+                  nickname: JaneDoe
+                  given_name: Jane
+                  family_name: Doe
+                  email: jane@example.com
+                  user_type: client
+                  status: active
+                properties:
+                  id:
+                    type: integer
+                    example: 2
+                  nickname:
+                    type: string
+                    example: JaneDoe
+                  given_name:
+                    type: string
+                    example: Jane
+                  family_name:
+                    type: string
+                    example: Doe
+                  email:
+                    type: string
+                    example: jane@example.com
+                  user_type:
+                    type: string
+                    example: client
+                  status:
+                    type: string
+                    example: active
+      tags:
+        - 'User Management'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                nickname:
+                  type: string
+                  description: "The user's nickname (optional)."
+                  example: JohnDoe
+                  nullable: true
+                given_name:
+                  type: string
+                  description: "The user's first name."
+                  example: John
+                  nullable: false
+                family_name:
+                  type: string
+                  description: "The user's last name."
+                  example: Doe
+                  nullable: false
+                email:
+                  type: string
+                  description: "The user's email. Must be unique."
+                  example: john@example.com
+                  nullable: false
+                password:
+                  type: string
+                  description: 'Minimum 8 characters.'
+                  example: password123
+                  nullable: false
+                company_id:
+                  type: integer
+                  description: 'The ID of the company the user belongs to (optional).'
+                  example: 1
+                  nullable: true
+                user_type:
+                  type: string
+                  description: 'The role of the user (client, staff, applicant, administrator, super-user).'
+                  example: administrator
+                  nullable: false
+                status:
+                  type: string
+                  description: "The user's status (active, unconfirmed, suspended, banned, unknown)."
+                  example: active
+                  nullable: false
+              required:
+                - given_name
+                - family_name
+                - email
+                - password
+                - user_type
+                - status
+  '/api/v1/users/{id}':
+    get:
+      summary: 'Display the specified user.'
+      operationId: displayTheSpecifiedUser
+      description: 'Show the details of a specific user by ID.'
+      parameters: []
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  id: 1
+                  nickname: JohnDoe
+                  given_name: John
+                  family_name: Doe
+                  email: john@example.com
+                  user_type: administrator
+                  status: active
+                properties:
+                  id:
+                    type: integer
+                    example: 1
+                  nickname:
+                    type: string
+                    example: JohnDoe
+                  given_name:
+                    type: string
+                    example: John
+                  family_name:
+                    type: string
+                    example: Doe
+                  email:
+                    type: string
+                    example: john@example.com
+                  user_type:
+                    type: string
+                    example: administrator
+                  status:
+                    type: string
+                    example: active
+      tags:
+        - 'User Management'
+    put:
+      summary: 'Update the specified user in storage.'
+      operationId: updateTheSpecifiedUserInStorage
+      description: 'Validates and updates the user’s details.'
+      parameters: []
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  id: 1
+                  nickname: JohnDoe
+                  given_name: John
+                  family_name: Doe
+                  email: john@example.com
+                  user_type: administrator
+                  status: active
+                properties:
+                  id:
+                    type: integer
+                    example: 1
+                  nickname:
+                    type: string
+                    example: JohnDoe
+                  given_name:
+                    type: string
+                    example: John
+                  family_name:
+                    type: string
+                    example: Doe
+                  email:
+                    type: string
+                    example: john@example.com
+                  user_type:
+                    type: string
+                    example: administrator
+                  status:
+                    type: string
+                    example: active
+      tags:
+        - 'User Management'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                nickname:
+                  type: string
+                  description: 'Must not be greater than 255 characters.'
+                  example: bcxopkkbqxqhkcasozbwmi
+                  nullable: true
+                given_name:
+                  type: string
+                  description: "The user's first name."
+                  example: John
+                  nullable: false
+                family_name:
+                  type: string
+                  description: "The user's last name."
+                  example: Doe
+                  nullable: false
+                email:
+                  type: string
+                  description: "The user's email. Must be unique."
+                  example: john@example.com
+                  nullable: false
+                password:
+                  type: string
+                  description: 'Minimum 8 characters.'
+                  example: password123
+                  nullable: false
+                company_id:
+                  type: integer
+                  description: 'The ID of the company the user belongs to (optional).'
+                  example: 1
+                  nullable: true
+                user_type:
+                  type: string
+                  description: 'The role of the user (client, staff, applicant, administrator, super-user).'
+                  example: administrator
+                  nullable: false
+                status:
+                  type: string
+                  description: "The user's status (active, unconfirmed, suspended, banned, unknown)."
+                  example: active
+                  nullable: false
+              required:
+                - given_name
+                - family_name
+                - email
+                - password
+                - user_type
+                - status
+    delete:
+      summary: 'Remove the specified user from storage (soft delete).'
+      operationId: removeTheSpecifiedUserFromStoragesoftDelete
+      description: 'Marks the user as deleted (soft delete) and prevents them from accessing the system.'
+      parameters: []
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  id: 1
+                  nickname: JohnDoe
+                  given_name: John
+                  family_name: Doe
+                  email: john@example.com
+                  user_type: administrator
+                  status: deleted
+                properties:
+                  id:
+                    type: integer
+                    example: 1
+                  nickname:
+                    type: string
+                    example: JohnDoe
+                  given_name:
+                    type: string
+                    example: John
+                  family_name:
+                    type: string
+                    example: Doe
+                  email:
+                    type: string
+                    example: john@example.com
+                  user_type:
+                    type: string
+                    example: administrator
+                  status:
+                    type: string
+                    example: deleted
+      tags:
+        - 'User Management'
+    parameters:
+      -
+        in: path
+        name: id
+        description: 'The ID of the user.'
+        example: 2
+        required: true
+        schema:
+          type: integer
+      -
+        in: path
+        name: user
+        description: 'The ID of the user.'
+        example: 1
+        required: true
+        schema:
+          type: integer
+  '/api/v1/users/{id}/restore':
+    patch:
+      summary: 'Restore a soft-deleted user.'
+      operationId: restoreASoftDeletedUser
+      description: 'Restores a user that was previously soft-deleted.'
+      parameters: []
+      responses:
+        200:
+          description: 'User restored successfully'
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  id: 1
+                  nickname: JohnDoe
+                  given_name: John
+                  family_name: Doe
+                  email: john@example.com
+                  status: active
+                properties:
+                  id:
+                    type: integer
+                    example: 1
+                  nickname:
+                    type: string
+                    example: JohnDoe
+                  given_name:
+                    type: string
+                    example: John
+                  family_name:
+                    type: string
+                    example: Doe
+                  email:
+                    type: string
+                    example: john@example.com
+                  status:
+                    type: string
+                    example: active
+      tags:
+        - 'User Management'
+    parameters:
+      -
+        in: path
+        name: id
+        description: 'The ID of the user to restore.'
+        example: 1
+        required: true
+        schema:
+          type: integer
+tags:
+  -
+    name: Authentication
+    description: "\nAPI endpoints for user registration, login, and logout functionalities.\nThese endpoints allow users to register an account, login with their credentials, and logout by deleting their authentication tokens."
+  -
+    name: Companies
+    description: "\nAPIs to manage companies including creating, updating, retrieving, and deleting companies."
+  -
+    name: 'Position Management'
+    description: "\nThis controller handles all operations related to managing positions. It includes functionalities\nfor retrieving, creating, updating, and deleting positions. The operations are gated based on user\nauthorization and the user's authentication status."
+  -
+    name: 'User Management'
+    description: "\nAPIs for managing users in the system, including CRUD operations and restoring deleted users."

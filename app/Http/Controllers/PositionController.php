@@ -7,16 +7,27 @@ use App\Models\Position;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 
+/**
+ * @group Position Management
+ *
+ * This controller handles all operations related to managing positions. It includes functionalities
+ * for retrieving, creating, updating, and deleting positions. The operations are gated based on user
+ * authorization and the user's authentication status.
+ */
 class PositionController extends Controller
 {
     /**
      * Display a listing of the positions.
      *
-     * This endpoint retrieves a list of positions. For authenticated users, it returns paginated results.
-     * For unauthenticated users, it returns a limited number of positions.
+     * This endpoint retrieves a list of positions based on user authentication status:
+     * - Authenticated users: Receives paginated results of positions.
+     * - Unauthenticated users: Receives a limited number of positions.
+     *
+     * @queryParam page int The page number for pagination (defaults to 1).
      *
      * @response 200 scenario="Successful response" {
-     *    "status": "success",
+     *    "success": true,
+     *    "message": "Positions retrieved successfully",
      *    "data": [
      *        {
      *            "id": 1,
@@ -34,10 +45,16 @@ class PositionController extends Controller
      *            "requirements": "Requirement details",
      *            "position_type": "permanent"
      *        }
-     *    ],
-     *    "message": "Positions retrieved successfully"
+     *    ]
      * }
-     * @response 401 scenario="Unauthorized" {"success": false, "message": "You must be logged in to view this position."}
+     *
+     * @response 401 scenario="Unauthorized" {
+     *    "success": false,
+     *    "message": "You must be logged in to view this position."
+     * }
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
      */
     public function index(Request $request)
     {
@@ -57,7 +74,8 @@ class PositionController extends Controller
     /**
      * Store a newly created position in storage.
      *
-     * This endpoint allows authorized users to create a new position.
+     * This endpoint allows authorized users to create a new position. All fields marked as required must
+     * be provided, and the user must be authorized to create positions.
      *
      * @bodyParam advertising_start_date string required The start date for advertising the position.
      * @bodyParam advertising_end_date string required The end date for advertising the position.
@@ -72,8 +90,10 @@ class PositionController extends Controller
      * @bodyParam benefits string optional Benefits associated with the position.
      * @bodyParam requirements string optional Requirements for the position.
      * @bodyParam position_type string required The type of the position (permanent, contract, part-time, casual).
+     *
      * @response 201 scenario="Position created successfully" {
-     *    "status": "success",
+     *    "success": true,
+     *    "message": "Position created successfully",
      *    "data": {
      *        "id": 1,
      *        "advertising_start_date": "2024-01-01",
@@ -89,10 +109,16 @@ class PositionController extends Controller
      *        "benefits": "Benefit details",
      *        "requirements": "Requirement details",
      *        "position_type": "permanent"
-     *    },
-     *    "message": "Position created successfully"
+     *    }
      * }
-     * @response 403 scenario="Unauthorized" {"success": false, "message": "This action is unauthorized."}
+     *
+     * @response 403 scenario="Unauthorized" {
+     *    "success": false,
+     *    "message": "This action is unauthorized."
+     * }
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
      */
     public function store(Request $request)
     {
@@ -114,7 +140,6 @@ class PositionController extends Controller
             'position_type' => 'required|string|in:permanent,contract,part-time,casual',
         ]);
 
-//        $position = $request->user()->positions()->create($validateData);
         $position = Position::create($validateData);
 
         return ApiResponseClass::sendResponse(
@@ -130,8 +155,10 @@ class PositionController extends Controller
      * This endpoint retrieves a specific position by its ID. Users must be authenticated to access this endpoint.
      *
      * @urlParam position int required The ID of the position to retrieve.
+     *
      * @response 200 scenario="Successful response" {
-     *    "status": "success",
+     *    "success": true,
+     *    "message": "Position retrieved successfully",
      *    "data": {
      *        "id": 1,
      *        "advertising_start_date": "2024-01-01",
@@ -147,11 +174,21 @@ class PositionController extends Controller
      *        "benefits": "Benefit details",
      *        "requirements": "Requirement details",
      *        "position_type": "permanent"
-     *    },
-     *    "message": "Position retrieved successfully"
+     *    }
      * }
-     * @response 401 scenario="Unauthorized" {"success": false, "message": "You must be logged in to view this position."}
-     * @response 404 scenario="Not found" {"success": false, "message": "Position not found"}
+     *
+     * @response 401 scenario="Unauthorized" {
+     *    "success": false,
+     *    "message": "You must be logged in to view this position."
+     * }
+     * @response 404 scenario="Not found" {
+     *    "success": false,
+     *    "message": "Position not found"
+     * }
+     *
+     * @param Request $request
+     * @param Position $position
+     * @return \Illuminate\Http\JsonResponse
      */
     public function show(Request $request, Position $position)
     {
@@ -189,28 +226,40 @@ class PositionController extends Controller
      * @bodyParam benefits string optional Updated benefits associated with the position.
      * @bodyParam requirements string optional Updated requirements for the position.
      * @bodyParam position_type string required Updated type of the position (permanent, contract, part-time, casual).
-     * @response 200 scenario="Successful update" {
-     *    "status": "success",
+     *
+     * @response 200 scenario="Position updated successfully" {
+     *    "success": true,
+     *    "message": "Position updated successfully",
      *    "data": {
      *        "id": 1,
      *        "advertising_start_date": "2024-01-01",
      *        "advertising_end_date": "2024-01-31",
-     *        "title": "Updated Position Title",
-     *        "description": "Updated Position Description",
-     *        "keywords": "updated_keyword1, updated_keyword2",
-     *        "min_salary": 60000,
-     *        "max_salary": 80000,
+     *        "title": "Position Title",
+     *        "description": "Position Description",
+     *        "keywords": "keyword1, keyword2",
+     *        "min_salary": 50000,
+     *        "max_salary": 70000,
      *        "salary_currency": "AUD",
      *        "company_id": 1,
      *        "user_id": 1,
-     *        "benefits": "Updated benefit details",
-     *        "requirements": "Updated requirement details",
-     *        "position_type": "contract"
-     *    },
-     *    "message": "Position updated successfully"
+     *        "benefits": "Benefit details",
+     *        "requirements": "Requirement details",
+     *        "position_type": "permanent"
+     *    }
      * }
-     * @response 403 scenario="Unauthorized" {"success": false, "message": "This action is unauthorized."}
-     * @response 404 scenario="Not found" {"success": false, "message": "Position not found"}
+     *
+     * @response 403 scenario="Unauthorized" {
+     *    "success": false,
+     *    "message": "This action is unauthorized."
+     * }
+     * @response 404 scenario="Not found" {
+     *    "success": false,
+     *    "message": "Position not found"
+     * }
+     *
+     * @param Request $request
+     * @param Position $position
+     * @return \Illuminate\Http\JsonResponse
      */
     public function update(Request $request, Position $position)
     {
@@ -221,7 +270,7 @@ class PositionController extends Controller
             'advertising_end_date' => 'required|date',
             'title' => 'required|string',
             'description' => 'required|string',
-            'keywords' => 'nullable|array',
+            'keywords' => 'nullable|string',
             'min_salary' => 'nullable|numeric',
             'max_salary' => 'nullable|numeric',
             'salary_currency' => 'nullable|string|in:AUD',
@@ -230,135 +279,49 @@ class PositionController extends Controller
             'benefits' => 'nullable|string',
             'requirements' => 'nullable|string',
             'position_type' => 'required|string|in:permanent,contract,part-time,casual',
-
         ]);
 
         $position->update($validateData);
 
         return ApiResponseClass::sendResponse(
             $position,
-            'Position updated successfully',
-            200
+            'Position updated successfully'
         );
     }
 
     /**
      * Remove the specified position from storage.
      *
-     * This endpoint allows an authorized user to delete a specific position. The position is soft deleted.
+     * This endpoint allows an authorized user to delete a specific position.
      *
      * @urlParam position int required The ID of the position to delete.
-     * @response 200 scenario="Successful deletion" {
-     *    "status": "success",
-     *    "data": {
-     *        "id": 1,
-     *        "advertising_start_date": "2024-01-01",
-     *        "advertising_end_date": "2024-01-31",
-     *        "title": "Position Title",
-     *        "description": "Position Description",
-     *        "keywords": "keyword1, keyword2",
-     *        "min_salary": 50000,
-     *        "max_salary": 70000,
-     *        "salary_currency": "AUD",
-     *        "company_id": 1,
-     *        "user_id": 1,
-     *        "benefits": "Benefit details",
-     *        "requirements": "Requirement details",
-     *        "position_type": "permanent"
-     *    },
+     *
+     * @response 200 scenario="Position deleted successfully" {
+     *    "success": true,
      *    "message": "Position deleted successfully"
      * }
-     * @response 403 scenario="Unauthorized" {"success": false, "message": "This action is unauthorized."}
-     * @response 404 scenario="Not found" {"success": false, "message": "Position not found"}
+     *
+     * @response 403 scenario="Unauthorized" {
+     *    "success": false,
+     *    "message": "This action is unauthorized."
+     * }
+     * @response 404 scenario="Not found" {
+     *    "success": false,
+     *    "message": "Position not found"
+     * }
+     *
+     * @param Position $position
+     * @return \Illuminate\Http\JsonResponse
      */
     public function destroy(Position $position)
     {
         Gate::authorize('delete', $position);
+
         $position->delete();
+
         return ApiResponseClass::sendResponse(
-            $position,
-            'Position deleted successfully',
-            200
+            null,
+            'Position deleted successfully'
         );
     }
-
-    /**
-     * Permanently delete all soft-deleted positions.
-     *
-     * This endpoint allows an authorized user to permanently delete all positions that have been soft deleted.
-     *
-     * @response 200 scenario="Successful deletion" {"message": "All positions permanently deleted successfully"}
-     * @response 403 scenario="Unauthorized" {"success": false, "message": "This action is unauthorized."}
-     */
-    public function destroyAll()
-    {
-        Gate::authorize('forceDeleteAll', Position::class);
-
-        $positions = Position::onlyTrashed()->get();
-        foreach ($positions as $position) {
-            $position->forceDelete();
-        }
-
-        return response()->json(['message' => 'All positions permanently deleted successfully']);
-    }
-
-    /**
-     * Restore a soft-deleted position.
-     *
-     * This endpoint allows an authorized user to restore a position that has been soft deleted.
-     *
-     * @urlParam id int required The ID of the position to restore.
-     * @response 200 scenario="Successful restoration" {
-     *    "status": "success",
-     *    "data": {
-     *        "id": 1,
-     *        "advertising_start_date": "2024-01-01",
-     *        "advertising_end_date": "2024-01-31",
-     *        "title": "Position Title",
-     *        "description": "Position Description",
-     *        "keywords": "keyword1, keyword2",
-     *        "min_salary": 50000,
-     *        "max_salary": 70000,
-     *        "salary_currency": "AUD",
-     *        "company_id": 1,
-     *        "user_id": 1,
-     *        "benefits": "Benefit details",
-     *        "requirements": "Requirement details",
-     *        "position_type": "permanent"
-     *    },
-     *    "message": "Position restored successfully"
-     * }
-     * @response 404 scenario="Not found" {"success": false, "message": "Position not found"}
-     */
-
-    public function restore($id) {
-        $company = Position::onlyTrashed()->findOrFail($id);
-        $company->restore();
-        return ApiResponseClass::sendResponse(
-            $company,
-            'Position restored successfully',
-            200
-        );
-    }
-
-    /**
-     * Restore all soft-deleted positions.
-     *
-     * This endpoint allows an authorized user to restore all positions that have been soft deleted.
-     *
-     * @response 200 scenario="Successful restoration" {"message": "All positions restored successfully"}
-     * @response 403 scenario="Unauthorized" {"success": false, "message": "This action is unauthorized."}
-     */
-    public function restoreAll()
-    {
-        Gate::authorize('restoreAll', Position::class);
-
-        $positions = Company::onlyTrashed()->get();
-        foreach ($positions as $position) {
-            $position->restore();
-        }
-
-        return response()->json(['message' => 'All positions restored successfully']);
-    }
-
 }

@@ -1,0 +1,744 @@
+name: 'Position Management'
+description: |-
+
+  This controller handles all operations related to managing positions. It includes functionalities
+  for retrieving, creating, updating, and deleting positions. The operations are gated based on user
+  authorization and the user's authentication status.
+endpoints:
+  -
+    httpMethods:
+      - GET
+    uri: api/v1/positions
+    metadata:
+      groupName: 'Position Management'
+      groupDescription: |-
+
+        This controller handles all operations related to managing positions. It includes functionalities
+        for retrieving, creating, updating, and deleting positions. The operations are gated based on user
+        authorization and the user's authentication status.
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Display a listing of the positions.'
+      description: |-
+        This endpoint retrieves a list of positions based on user authentication status:
+        - Authenticated users: Receives paginated results of positions.
+        - Unauthenticated users: Receives a limited number of positions.
+      authenticated: false
+      custom: []
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters:
+      page:
+        name: page
+        description: 'The page number for pagination (defaults to 1).'
+        required: false
+        example: 7
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        custom: []
+    cleanQueryParameters:
+      page: 7
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        status: 200
+        content: |-
+          {
+             "success": true,
+             "message": "Positions retrieved successfully",
+             "data": [
+                 {
+                     "id": 1,
+                     "advertising_start_date": "2024-01-01",
+                     "advertising_end_date": "2024-01-31",
+                     "title": "Position Title",
+                     "description": "Position Description",
+                     "keywords": "keyword1, keyword2",
+                     "min_salary": 50000,
+                     "max_salary": 70000,
+                     "salary_currency": "AUD",
+                     "company_id": 1,
+                     "user_id": 1,
+                     "benefits": "Benefit details",
+                     "requirements": "Requirement details",
+                     "position_type": "permanent"
+                 }
+             ]
+          }
+        headers: []
+        description: 'Successful response'
+        custom: []
+      -
+        status: 401
+        content: |-
+          {
+             "success": false,
+             "message": "You must be logged in to view this position."
+          }
+        headers: []
+        description: Unauthorized
+        custom: []
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+    custom: []
+  -
+    httpMethods:
+      - POST
+    uri: api/v1/positions
+    metadata:
+      groupName: 'Position Management'
+      groupDescription: |-
+
+        This controller handles all operations related to managing positions. It includes functionalities
+        for retrieving, creating, updating, and deleting positions. The operations are gated based on user
+        authorization and the user's authentication status.
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Store a newly created position in storage.'
+      description: |-
+        This endpoint allows authorized users to create a new position. All fields marked as required must
+        be provided, and the user must be authorized to create positions.
+      authenticated: false
+      custom: []
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      advertising_start_date:
+        name: advertising_start_date
+        description: 'The start date for advertising the position.'
+        required: true
+        example: quia
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        custom: []
+      advertising_end_date:
+        name: advertising_end_date
+        description: 'The end date for advertising the position.'
+        required: true
+        example: iste
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        custom: []
+      title:
+        name: title
+        description: 'The title of the position.'
+        required: true
+        example: modi
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        custom: []
+      description:
+        name: description
+        description: 'The description of the position.'
+        required: true
+        example: 'Fugit distinctio laborum quo et delectus dolor libero.'
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        custom: []
+      keywords:
+        name: keywords
+        description: 'optional Keywords related to the position.'
+        required: false
+        example: magnam
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        custom: []
+      min_salary:
+        name: min_salary
+        description: 'optional The minimum salary for the position.'
+        required: false
+        example: amet
+        type: numeric
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        custom: []
+      max_salary:
+        name: max_salary
+        description: 'optional The maximum salary for the position.'
+        required: false
+        example: dolores
+        type: numeric
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        custom: []
+      salary_currency:
+        name: salary_currency
+        description: 'optional The currency of the salary. Defaults to AUD.'
+        required: false
+        example: soluta
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        custom: []
+      company_id:
+        name: company_id
+        description: 'The ID of the company offering the position.'
+        required: true
+        example: 18
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        custom: []
+      user_id:
+        name: user_id
+        description: 'The ID of the user creating the position.'
+        required: true
+        example: 12
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        custom: []
+      benefits:
+        name: benefits
+        description: 'optional Benefits associated with the position.'
+        required: false
+        example: eius
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        custom: []
+      requirements:
+        name: requirements
+        description: 'optional Requirements for the position.'
+        required: false
+        example: eveniet
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        custom: []
+      position_type:
+        name: position_type
+        description: 'The type of the position (permanent, contract, part-time, casual).'
+        required: true
+        example: nostrum
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        custom: []
+    cleanBodyParameters:
+      advertising_start_date: quia
+      advertising_end_date: iste
+      title: modi
+      description: 'Fugit distinctio laborum quo et delectus dolor libero.'
+      keywords: magnam
+      min_salary: amet
+      max_salary: dolores
+      salary_currency: soluta
+      company_id: 18
+      user_id: 12
+      benefits: eius
+      requirements: eveniet
+      position_type: nostrum
+    fileParameters: []
+    responses:
+      -
+        status: 201
+        content: |-
+          {
+             "success": true,
+             "message": "Position created successfully",
+             "data": {
+                 "id": 1,
+                 "advertising_start_date": "2024-01-01",
+                 "advertising_end_date": "2024-01-31",
+                 "title": "Position Title",
+                 "description": "Position Description",
+                 "keywords": "keyword1, keyword2",
+                 "min_salary": 50000,
+                 "max_salary": 70000,
+                 "salary_currency": "AUD",
+                 "company_id": 1,
+                 "user_id": 1,
+                 "benefits": "Benefit details",
+                 "requirements": "Requirement details",
+                 "position_type": "permanent"
+             }
+          }
+        headers: []
+        description: 'Position created successfully'
+        custom: []
+      -
+        status: 403
+        content: |-
+          {
+             "success": false,
+             "message": "This action is unauthorized."
+          }
+        headers: []
+        description: Unauthorized
+        custom: []
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+    custom: []
+  -
+    httpMethods:
+      - GET
+    uri: 'api/v1/positions/{id}'
+    metadata:
+      groupName: 'Position Management'
+      groupDescription: |-
+
+        This controller handles all operations related to managing positions. It includes functionalities
+        for retrieving, creating, updating, and deleting positions. The operations are gated based on user
+        authorization and the user's authentication status.
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Display the specified position.'
+      description: 'This endpoint retrieves a specific position by its ID. Users must be authenticated to access this endpoint.'
+      authenticated: false
+      custom: []
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters:
+      id:
+        name: id
+        description: 'The ID of the position.'
+        required: true
+        example: 2
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        custom: []
+      position:
+        name: position
+        description: 'The ID of the position to retrieve.'
+        required: true
+        example: 9
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        custom: []
+    cleanUrlParameters:
+      id: 2
+      position: 9
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        status: 200
+        content: |-
+          {
+             "success": true,
+             "message": "Position retrieved successfully",
+             "data": {
+                 "id": 1,
+                 "advertising_start_date": "2024-01-01",
+                 "advertising_end_date": "2024-01-31",
+                 "title": "Position Title",
+                 "description": "Position Description",
+                 "keywords": "keyword1, keyword2",
+                 "min_salary": 50000,
+                 "max_salary": 70000,
+                 "salary_currency": "AUD",
+                 "company_id": 1,
+                 "user_id": 1,
+                 "benefits": "Benefit details",
+                 "requirements": "Requirement details",
+                 "position_type": "permanent"
+             }
+          }
+        headers: []
+        description: 'Successful response'
+        custom: []
+      -
+        status: 401
+        content: |-
+          {
+             "success": false,
+             "message": "You must be logged in to view this position."
+          }
+        headers: []
+        description: Unauthorized
+        custom: []
+      -
+        status: 404
+        content: |-
+          {
+             "success": false,
+             "message": "Position not found"
+          }
+        headers: []
+        description: 'Not found'
+        custom: []
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+    custom: []
+  -
+    httpMethods:
+      - PUT
+      - PATCH
+    uri: 'api/v1/positions/{id}'
+    metadata:
+      groupName: 'Position Management'
+      groupDescription: |-
+
+        This controller handles all operations related to managing positions. It includes functionalities
+        for retrieving, creating, updating, and deleting positions. The operations are gated based on user
+        authorization and the user's authentication status.
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Update the specified position in storage.'
+      description: 'This endpoint allows an authorized user to update the details of a specific position.'
+      authenticated: false
+      custom: []
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters:
+      id:
+        name: id
+        description: 'The ID of the position.'
+        required: true
+        example: 10
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        custom: []
+      position:
+        name: position
+        description: 'The ID of the position to update.'
+        required: true
+        example: 20
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        custom: []
+    cleanUrlParameters:
+      id: 10
+      position: 20
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      advertising_start_date:
+        name: advertising_start_date
+        description: 'The updated start date for advertising the position.'
+        required: true
+        example: non
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        custom: []
+      advertising_end_date:
+        name: advertising_end_date
+        description: 'The updated end date for advertising the position.'
+        required: true
+        example: et
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        custom: []
+      title:
+        name: title
+        description: 'The updated title of the position.'
+        required: true
+        example: optio
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        custom: []
+      description:
+        name: description
+        description: 'The updated description of the position.'
+        required: true
+        example: 'Iure ut natus quo suscipit temporibus totam.'
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        custom: []
+      keywords:
+        name: keywords
+        description: 'optional Updated keywords related to the position.'
+        required: false
+        example:
+          - et
+        type: 'string[]'
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        custom: []
+      min_salary:
+        name: min_salary
+        description: 'optional Updated minimum salary for the position.'
+        required: false
+        example: libero
+        type: numeric
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        custom: []
+      max_salary:
+        name: max_salary
+        description: 'optional Updated maximum salary for the position.'
+        required: false
+        example: quasi
+        type: numeric
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        custom: []
+      salary_currency:
+        name: salary_currency
+        description: 'optional Updated currency of the salary. Defaults to AUD.'
+        required: false
+        example: magni
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        custom: []
+      company_id:
+        name: company_id
+        description: 'The ID of the company offering the position.'
+        required: true
+        example: 5
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        custom: []
+      user_id:
+        name: user_id
+        description: 'The ID of the user creating the position.'
+        required: true
+        example: 20
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        custom: []
+      benefits:
+        name: benefits
+        description: 'optional Updated benefits associated with the position.'
+        required: false
+        example: quis
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        custom: []
+      requirements:
+        name: requirements
+        description: 'optional Updated requirements for the position.'
+        required: false
+        example: eligendi
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        custom: []
+      position_type:
+        name: position_type
+        description: 'Updated type of the position (permanent, contract, part-time, casual).'
+        required: true
+        example: est
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        custom: []
+    cleanBodyParameters:
+      advertising_start_date: non
+      advertising_end_date: et
+      title: optio
+      description: 'Iure ut natus quo suscipit temporibus totam.'
+      keywords:
+        - et
+      min_salary: libero
+      max_salary: quasi
+      salary_currency: magni
+      company_id: 5
+      user_id: 20
+      benefits: quis
+      requirements: eligendi
+      position_type: est
+    fileParameters: []
+    responses:
+      -
+        status: 200
+        content: |-
+          {
+             "success": true,
+             "message": "Position updated successfully",
+             "data": {
+                 "id": 1,
+                 "advertising_start_date": "2024-01-01",
+                 "advertising_end_date": "2024-01-31",
+                 "title": "Position Title",
+                 "description": "Position Description",
+                 "keywords": "keyword1, keyword2",
+                 "min_salary": 50000,
+                 "max_salary": 70000,
+                 "salary_currency": "AUD",
+                 "company_id": 1,
+                 "user_id": 1,
+                 "benefits": "Benefit details",
+                 "requirements": "Requirement details",
+                 "position_type": "permanent"
+             }
+          }
+        headers: []
+        description: 'Position updated successfully'
+        custom: []
+      -
+        status: 403
+        content: |-
+          {
+             "success": false,
+             "message": "This action is unauthorized."
+          }
+        headers: []
+        description: Unauthorized
+        custom: []
+      -
+        status: 404
+        content: |-
+          {
+             "success": false,
+             "message": "Position not found"
+          }
+        headers: []
+        description: 'Not found'
+        custom: []
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+    custom: []
+  -
+    httpMethods:
+      - DELETE
+    uri: 'api/v1/positions/{id}'
+    metadata:
+      groupName: 'Position Management'
+      groupDescription: |-
+
+        This controller handles all operations related to managing positions. It includes functionalities
+        for retrieving, creating, updating, and deleting positions. The operations are gated based on user
+        authorization and the user's authentication status.
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Remove the specified position from storage.'
+      description: 'This endpoint allows an authorized user to delete a specific position.'
+      authenticated: false
+      custom: []
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters:
+      id:
+        name: id
+        description: 'The ID of the position.'
+        required: true
+        example: 4
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        custom: []
+      position:
+        name: position
+        description: 'The ID of the position to delete.'
+        required: true
+        example: 18
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        custom: []
+    cleanUrlParameters:
+      id: 4
+      position: 18
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        status: 200
+        content: |-
+          {
+             "success": true,
+             "message": "Position deleted successfully"
+          }
+        headers: []
+        description: 'Position deleted successfully'
+        custom: []
+      -
+        status: 403
+        content: |-
+          {
+             "success": false,
+             "message": "This action is unauthorized."
+          }
+        headers: []
+        description: Unauthorized
+        custom: []
+      -
+        status: 404
+        content: |-
+          {
+             "success": false,
+             "message": "Position not found"
+          }
+        headers: []
+        description: 'Not found'
+        custom: []
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+    custom: []

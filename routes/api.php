@@ -8,10 +8,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 
-//Route::get('/user', function (Request $request) {
-//    return $request->user();
-//})->middleware('auth:sanctum');
-
 Route::group(['prefix'=>'v1'], function () {
     Route::post('/register', [AuthController::class, 'register']);
     Route::post('/login', [AuthController::class, 'login']);
@@ -44,10 +40,6 @@ Route::middleware('auth:sanctum')->prefix('v1')->group(function () {
 });
 
 Route::middleware('auth:sanctum')->prefix('v1')->group(function () {
-//    Route::get('users', [UserController::class, 'index']);
-//    Route::get('users/{user}', [UserController::class, 'show']);
-//    Route::patch('users/{user}', [UserController::class, 'update']);
-//    Route::delete('users/{user}', [UserController::class, 'destroy']);
     Route::apiResource('users', UserController::class);
     Route::patch('users/{id}/restore', [UserController::class, 'restore'])
         ->name('users.restore');
